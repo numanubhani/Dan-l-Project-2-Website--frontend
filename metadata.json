@@ -1,0 +1,8 @@
+{
+  "name": "VPulse - Video Betting & Content Platform",
+  "description": "A high-end TikTok-style video platform where users can watch short-form content and place real-time bets on video outcomes using internal coins.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
