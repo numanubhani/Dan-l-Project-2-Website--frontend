@@ -20,16 +20,20 @@
         .snap-start {
             scroll-snap-align: start;
         }
-        /* Custom Scrollbar for better UX */
-        ::-webkit-scrollbar {
-            width: 6px;
+        /* Hide Scrollbar */
+        * {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
         }
-        ::-webkit-scrollbar-track {
-            background: #000;
+        *::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
-        ::-webkit-scrollbar-thumb {
-            background: #8b5cf6;
-            border-radius: 10px;
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
     </style>
 <script type="importmap">

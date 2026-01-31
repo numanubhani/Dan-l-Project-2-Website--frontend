@@ -5,7 +5,7 @@ import { HeartIcon, CommentIcon, ShareIcon, BetIcon } from './Icons';
 import BettingOverlay from './BettingOverlay';
 import { Video } from '../types';
 
-const VideoCard: React.FC<{ video: Video; isActive: boolean }> = ({ video, isActive }) => {
+const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string }> = ({ video, isActive, cardHeight }) => {
   const [showBetting, setShowBetting] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -43,7 +43,8 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean }> = ({ video, isAct
 
   return (
     <div 
-      className="relative h-screen w-full snap-start overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+      className="relative w-full snap-start overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+      style={{ height: cardHeight }}
       onClick={togglePlayPause}
     >
       {/* Video element */}
@@ -80,7 +81,7 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean }> = ({ video, isAct
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
 
       {/* Right Side Interaction Bar */}
-      <div className="absolute right-4 bottom-24 flex flex-col items-center space-y-6" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-2 bottom-8 lg:bottom-24 flex flex-col items-center space-y-4 lg:space-y-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center group cursor-pointer">
           <div className="relative mb-2">
             <img src={video.creatorAvatar} className="w-12 h-12 rounded-full border-2 border-white" alt={video.creatorName} />
@@ -117,7 +118,7 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean }> = ({ video, isAct
         {video.betEvent && (
           <button 
             onClick={() => setShowBetting(true)}
-            className="flex flex-col items-center text-purple-400 animate-bounce mt-4"
+            className="flex flex-col items-center text-purple-400 mt-4"
           >
             <div className="p-4 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-400 transition">
               <BetIcon className="w-10 h-10" />
@@ -128,7 +129,7 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean }> = ({ video, isAct
       </div>
 
       {/* Bottom Info Section */}
-      <div className="absolute left-4 bottom-10 right-20 pointer-events-none">
+      <div className="absolute left-4 bottom-8 lg:bottom-10 right-20 pointer-events-none">
         <h4 className="text-white font-bold text-lg mb-1">@{video.creatorName}</h4>
         <p className="text-zinc-200 text-sm line-clamp-2 mb-2">{video.title}</p>
         <div className="flex items-center space-x-2 text-zinc-300 text-xs">
@@ -160,21 +161,41 @@ const Feed: React.FC = () => {
 
   const handleScroll = () => {
     if (containerRef.current) {
-      const index = Math.round(containerRef.current.scrollTop / window.innerHeight);
+      const cardHeight = window.innerWidth < 1024 ? window.innerHeight - 80 : window.innerHeight;
+      const index = Math.round(containerRef.current.scrollTop / cardHeight);
       setActiveIndex(index);
     }
   };
+
+  const [containerHeight, setContainerHeight] = useState('100vh');
+  const [cardHeight, setCardHeight] = useState('100vh');
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (window.innerWidth < 1024) {
+        setContainerHeight('calc(100vh - 80px)');
+        setCardHeight('calc(100vh - 80px)');
+      } else {
+        setContainerHeight('100vh');
+        setCardHeight('100vh');
+      }
+    };
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
 
   return (
     <div 
       ref={containerRef}
       onScroll={handleScroll}
-      className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide"
+      className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen"
+      style={{ height: containerHeight }}
     >
       {MOCK_VIDEOS.map((v, i) => (
-        <VideoCard key={v.id} video={v} isActive={activeIndex === i} />
+        <VideoCard key={v.id} video={v} isActive={activeIndex === i} cardHeight={cardHeight} />
       ))}
-      <div className="h-screen w-full flex items-center justify-center bg-zinc-900 snap-start">
+      <div className="w-full flex items-center justify-center bg-zinc-900 snap-start" style={{ height: cardHeight }}>
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-zinc-400 font-medium">Loading more epic moments...</p>

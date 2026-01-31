@@ -163,7 +163,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user }) => {
               Streamer Toolbox
             </h4>
             
-            <div className="space-y-3 overflow-y-auto pr-2 flex-1 scroll-smooth custom-scrollbar">
+            <div className="space-y-3 overflow-y-auto pr-2 flex-1 scroll-smooth scrollbar-hide">
               <button 
                 onClick={handleFlashBet}
                 className="w-full bg-zinc-800 hover:bg-zinc-700 p-4 rounded-xl text-left border border-zinc-700 transition active:scale-95 shrink-0"
