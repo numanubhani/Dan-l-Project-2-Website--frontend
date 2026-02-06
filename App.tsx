@@ -38,7 +38,6 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
       {/* Sidebar - Desktop */}
-      <nav className="hidden lg:flex flex-col w-72 h-screen border-r border-zinc-800 p-6 sticky top-0 overflow-y-auto scrollbar-hide">
         <div className="flex items-center space-x-3 mb-8">
           <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40">
             <span className="text-2xl font-black italic">V</span>
@@ -132,7 +131,6 @@ const App: React.FC = () => {
       </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative overflow-hidden h-screen overflow-y-auto lg:overflow-hidden scrollbar-hide">
         {renderContent()}
       </main>
 
