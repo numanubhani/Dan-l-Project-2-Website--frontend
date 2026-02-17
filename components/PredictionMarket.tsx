@@ -408,6 +408,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const categories = ['All', 'Trump', 'Iran', 'Olympics', 'Gov Shutdown', 'Oscars', 'Crypto', 'Tech'];
 
@@ -438,9 +439,17 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
               </button>
             )}
             
-            {/* Search */}
-            <div className="flex-1 max-w-md mr-2 sm:mr-4">
-              <div className="relative">
+            {/* Logo/Title on Mobile */}
+            <div className="lg:hidden flex items-center space-x-2 flex-1">
+              <div className="w-7 h-7 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/40">
+                <span className="text-base font-black italic text-white">V</span>
+              </div>
+              <span className="text-base font-black tracking-tighter text-white">VPULSE</span>
+            </div>
+            
+            {/* Search - Desktop */}
+            <div className="hidden md:flex flex-1 max-w-md mr-2 sm:mr-4">
+              <div className="relative w-full">
                 <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
                   <svg className="h-3.5 w-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -455,6 +464,17 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
                 />
               </div>
             </div>
+
+            {/* Mobile Search Icon Button - Top Right */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="md:hidden p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-white transition-colors border border-zinc-700 hover:border-purple-500/50"
+              aria-label="Search"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
 
             {/* Menu Items */}
             <div className="hidden lg:flex items-center space-x-0.5 ml-4">
@@ -484,8 +504,37 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
         </div>
       </div>
 
+      {/* Mobile Search Input - Shows when search icon is clicked */}
+      {showMobileSearch && (
+        <div className="lg:hidden px-3 py-3 bg-zinc-900 border-b border-zinc-800">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-4 w-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search markets..."
+              className="block w-full pl-10 pr-10 py-2 border border-zinc-800 rounded-lg bg-zinc-800 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-sm transition"
+              autoFocus
+            />
+            <button
+              onClick={() => setShowMobileSearch(false)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-white"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-5 pb-20 lg:pb-4 sm:pb-5">
         <CategoryTabs
           categories={categories}
           activeCategory={activeCategory}

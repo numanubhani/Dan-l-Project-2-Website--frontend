@@ -81,7 +81,7 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
 
       {/* Right Side Interaction Bar */}
-      <div className="absolute right-2 bottom-8 lg:bottom-10 flex flex-col items-center space-y-4 lg:space-y-5" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-2 bottom-20 lg:bottom-10 flex flex-col items-center space-y-3 sm:space-y-4 lg:space-y-5 z-[110]" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center group cursor-pointer">
           <div className="relative mb-2">
             <img src={video.creatorAvatar} className="w-12 h-12 lg:w-10 lg:h-10 rounded-full border-2 border-white" alt={video.creatorName} />
@@ -129,11 +129,11 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
       </div>
 
       {/* Bottom Info Section */}
-      <div className="absolute left-4 bottom-8 lg:bottom-10 right-20 pointer-events-none">
-        <h4 className="text-white font-bold text-lg mb-1">@{video.creatorName}</h4>
-        <p className="text-zinc-200 text-sm line-clamp-2 mb-2">{video.title}</p>
-        <div className="flex items-center space-x-2 text-zinc-300 text-xs">
-          <svg className="w-4 h-4 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      <div className="absolute left-4 bottom-20 lg:bottom-10 right-20 pointer-events-none">
+        <h4 className="text-white font-bold text-base sm:text-lg mb-1">@{video.creatorName}</h4>
+        <p className="text-zinc-200 text-xs sm:text-sm line-clamp-2 mb-2">{video.title}</p>
+        <div className="flex items-center space-x-2 text-zinc-300 text-[10px] sm:text-xs">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <span className="truncate">Original audio - {video.creatorName}</span>
         </div>
       </div>
@@ -173,6 +173,7 @@ const Feed: React.FC = () => {
   useEffect(() => {
     const updateHeight = () => {
       if (window.innerWidth < 1024) {
+        // Account for bottom navbar (approximately 80px) and add padding
         setContainerHeight('calc(100vh - 80px)');
         setCardHeight('calc(100vh - 80px)');
       } else {
@@ -189,13 +190,13 @@ const Feed: React.FC = () => {
     <div 
       ref={containerRef}
       onScroll={handleScroll}
-      className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen"
+      className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen pb-20 lg:pb-0"
       style={{ height: containerHeight }}
     >
       {MOCK_VIDEOS.map((v, i) => (
         <VideoCard key={v.id} video={v} isActive={activeIndex === i} cardHeight={cardHeight} />
       ))}
-      <div className="w-full flex items-center justify-center bg-zinc-900 snap-start" style={{ height: cardHeight }}>
+      <div className="w-full flex items-center justify-center bg-zinc-900 snap-start pb-20 lg:pb-0" style={{ height: cardHeight }}>
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-zinc-400 font-medium">Loading more epic moments...</p>
