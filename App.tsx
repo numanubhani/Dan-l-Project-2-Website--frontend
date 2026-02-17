@@ -31,17 +31,11 @@ const AppContent: React.FC = () => {
     if (path === '/creator') return 'creator';
     if (path === '/admin') return 'admin';
     if (path === '/live') return 'live';
+    if (path === '/' || path === '/feed') return 'feed'; // /feed is the home page
     return 'feed'; // default to feed
   };
 
   const activeTab = getActiveTab();
-
-  // Redirect root to /feed
-  useEffect(() => {
-    if (location.pathname === '/') {
-      navigate('/feed', { replace: true });
-    }
-  }, [location.pathname, navigate]);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row relative">
@@ -166,6 +160,7 @@ const AppContent: React.FC = () => {
           </button>
         )}
         <Routes>
+          <Route path="/" element={<Feed />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/explore" element={<Feed />} />
           <Route path="/market" element={<PredictionMarket onBack={() => navigate('/feed')} />} />
