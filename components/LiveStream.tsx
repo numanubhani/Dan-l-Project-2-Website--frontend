@@ -152,8 +152,8 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
             <div className="relative">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 overflow-hidden shrink-0 ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20">
-                <img src={user.avatar} className="w-full h-full object-cover" alt="" />
-              </div>
+            <img src={user.avatar} className="w-full h-full object-cover" alt="" />
+          </div>
               {isLive && (
                 <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse shadow-lg shadow-red-500/50"></div>
               )}
@@ -167,37 +167,37 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   <span className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : 'bg-zinc-500'}`}></span>
                   <span className="text-[9px] sm:text-[10px] text-zinc-300 uppercase font-black tracking-widest">
                     {isLive ? 'LIVE' : 'Preview'}
-                  </span>
-                </div>
-              </div>
+              </span>
             </div>
+              </div>
           </div>
+        </div>
 
-          {isLive && (
+        {isLive && (
             <div className="hidden sm:flex items-center space-x-3 shrink-0 mx-2 sm:mx-3">
               <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 border border-zinc-700/50 backdrop-blur-sm">
                 <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider mb-0.5">Viewers</p>
                 <p className="text-sm sm:text-base font-black bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
                   {viewers.toLocaleString()}
                 </p>
-              </div>
+            </div>
               <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 backdrop-blur-sm">
                 <p className="text-[9px] text-purple-300 font-bold uppercase tracking-wider mb-0.5">Active Bets</p>
                 <p className="text-sm sm:text-base font-black text-purple-400">
                   {activeBets}
                 </p>
-              </div>
             </div>
-          )}
+          </div>
+        )}
 
-          <button 
-            onClick={toggleLive}
+        <button 
+          onClick={toggleLive}
             className={`relative px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 overflow-hidden group ${
-              isLive 
+            isLive 
               ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30' 
               : 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg shadow-purple-500/30'
-            }`}
-          >
+          }`}
+        >
             <span className="relative z-10 flex items-center space-x-1.5">
               {isLive ? (
                 <>
@@ -218,7 +218,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
               )}
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-          </button>
+        </button>
         </div>
       </div>
 
@@ -240,11 +240,11 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
             {isLive && (
               <div className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-red-500/30 shadow-lg">
                 <div className="relative">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75"></div>
                 </div>
                 <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white">LIVE</span>
-              </div>
+            </div>
             )}
             <div className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/10 shadow-lg">
               <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
@@ -475,7 +475,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   <div className="flex items-start space-x-1.5 p-1.5 rounded-lg hover:bg-zinc-800/30 transition-colors">
                     <span className="text-purple-400 font-bold shrink-0 text-[10px]">Alex_Fan:</span>
                     <span className="text-zinc-300 text-[10px]">Just bet 50 coins on YES!</span>
-                  </div>
+            </div>
                 </div>
                 <div className="mt-2 sm:mt-2.5 flex gap-1.5">
                   <input 

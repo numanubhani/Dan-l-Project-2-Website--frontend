@@ -93,5 +93,80 @@ export const MOCK_VIDEOS: Video[] = [
       participants: 3400,
       expiresAt: Date.now() + 7200000,
     }
+  },
+  {
+    id: 'v4',
+    creatorId: 'c4',
+    creatorName: 'AdventureSeeker',
+    creatorAvatar: 'https://picsum.photos/seed/adventure/100',
+    title: 'Climbing Mount Everest Base Camp',
+    description: 'Journey to the base of the world\'s highest mountain. Epic views ahead!',
+    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    thumbnail: 'https://picsum.photos/seed/v4/400/800',
+    views: 67000,
+    likes: 5200,
+    comments: 280,
+    type: 'short',
+    betEvent: {
+      id: 'b4',
+      question: 'Will I reach base camp in under 10 days?',
+      options: [
+        { id: 'yes', text: 'Yes', odds: 2.5 },
+        { id: 'no', text: 'No', odds: 1.6 }
+      ],
+      totalPool: 12000,
+      participants: 890,
+      expiresAt: Date.now() + 86400000,
+    }
+  },
+  {
+    id: 'v5',
+    creatorId: 'c5',
+    creatorName: 'TechWizard',
+    creatorAvatar: 'https://picsum.photos/seed/tech/100',
+    title: 'Building a PC in 10 Minutes Challenge',
+    description: 'Can I assemble a gaming PC faster than ever? Watch me try!',
+    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    thumbnail: 'https://picsum.photos/seed/v5/400/800',
+    views: 89000,
+    likes: 6400,
+    comments: 520,
+    type: 'short',
+    betEvent: {
+      id: 'b5',
+      question: 'Will the PC boot on first try?',
+      options: [
+        { id: 'yes', text: 'Yes, Perfect Boot', odds: 3.0 },
+        { id: 'no', text: 'No, Needs Fixing', odds: 1.4 }
+      ],
+      totalPool: 18000,
+      participants: 1200,
+      expiresAt: Date.now() + 5400000,
+    }
+  },
+  {
+    id: 'v6',
+    creatorId: 'c6',
+    creatorName: 'MusicMaverick',
+    creatorAvatar: 'https://picsum.photos/seed/music/100',
+    title: 'One-Take Music Video: Original Song',
+    description: 'Filmed everything in one continuous shot. No cuts, no edits!',
+    url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+    thumbnail: 'https://picsum.photos/seed/v6/400/800',
+    views: 156000,
+    likes: 11200,
+    comments: 780,
+    type: 'long',
+    betEvent: {
+      id: 'b6',
+      question: 'Will this song hit 1M views in a week?',
+      options: [
+        { id: 'yes', text: 'Yes, Viral Hit', odds: 2.8 },
+        { id: 'no', text: 'No', odds: 1.5 }
+      ],
+      totalPool: 25000,
+      participants: 2100,
+      expiresAt: Date.now() + 604800000,
+    }
   }
 ];

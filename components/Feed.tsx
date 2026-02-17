@@ -132,6 +132,7 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
       <div className="absolute left-4 bottom-20 lg:bottom-10 right-20 pointer-events-none">
         <h4 className="text-white font-bold text-base sm:text-lg mb-1">@{video.creatorName}</h4>
         <p className="text-zinc-200 text-xs sm:text-sm line-clamp-2 mb-2">{video.title}</p>
+        <p className="text-zinc-300 text-xs sm:text-sm line-clamp-2 mb-2">{video.description}</p>
         <div className="flex items-center space-x-2 text-zinc-300 text-[10px] sm:text-xs">
           <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <span className="truncate">Original audio - {video.creatorName}</span>
@@ -173,7 +174,7 @@ const Feed: React.FC = () => {
   useEffect(() => {
     const updateHeight = () => {
       if (window.innerWidth < 1024) {
-        // Account for bottom navbar (approximately 80px) and add padding
+        // Account for bottom navbar (approximately 80px)
         setContainerHeight('calc(100vh - 80px)');
         setCardHeight('calc(100vh - 80px)');
       } else {
@@ -186,20 +187,43 @@ const Feed: React.FC = () => {
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
+  // Get first 6 videos
+  const videosToShow = MOCK_VIDEOS.slice(0, 6);
+
   return (
-    <div 
-      ref={containerRef}
-      onScroll={handleScroll}
-      className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen pb-20 lg:pb-0"
-      style={{ height: containerHeight }}
-    >
-      {MOCK_VIDEOS.map((v, i) => (
-        <VideoCard key={v.id} video={v} isActive={activeIndex === i} cardHeight={cardHeight} />
-      ))}
-      <div className="w-full flex items-center justify-center bg-zinc-900 snap-start pb-20 lg:pb-0" style={{ height: cardHeight }}>
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-zinc-400 font-medium">Loading more epic moments...</p>
+    <div className="w-full min-h-screen bg-black relative">
+      {/* Top Center - For You / Explore */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[120] pointer-events-none">
+        <p className="text-xs text-zinc-400 font-medium">For You / Explore</p>
+      </div>
+
+      {/* Search Icon - Top Right Corner (Mobile) */}
+      <div className="lg:hidden fixed top-4 right-4 z-[120]">
+        <button
+          className="p-3 rounded-full transition text-white"
+          aria-label="Search"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Main Content - Vertical Scroll with Snap */}
+      <div 
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen pb-20 lg:pb-0"
+        style={{ height: containerHeight }}
+      >
+        {videosToShow.map((video, i) => (
+          <VideoCard key={video.id} video={video} isActive={activeIndex === i} cardHeight={cardHeight} />
+        ))}
+        <div className="w-full flex items-center justify-center bg-zinc-900 snap-start pb-20 lg:pb-0" style={{ height: cardHeight }}>
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-zinc-400 font-medium">Loading more epic moments...</p>
+          </div>
         </div>
       </div>
     </div>
