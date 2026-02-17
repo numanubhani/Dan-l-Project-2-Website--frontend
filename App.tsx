@@ -4,15 +4,17 @@ import Feed from './components/Feed';
 import CreatorDashboard from './components/CreatorDashboard';
 import AdminPanel from './components/AdminPanel';
 import LiveStream from './components/LiveStream';
+import PredictionMarket from './components/PredictionMarket';
 import Notifications from './components/Notifications';
 import { MOCK_USER } from './constants';
 import { UserRole, Notification } from './types';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'explore' | 'creator' | 'admin' | 'profile' | 'live'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'explore' | 'creator' | 'admin' | 'profile' | 'live' | 'market'>('feed');
   const [user, setUser] = useState(MOCK_USER);
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifications] = useState<Notification[]>([
     { id: '1', message: 'You won 450 coins on "Triple Backflip Attempt"!', type: 'bet_win', timestamp: Date.now() - 3600000 },
     { id: '2', message: 'New video from ExtremeSports: "Death Dive"', type: 'new_video', timestamp: Date.now() - 7200000 },
@@ -29,21 +31,34 @@ const App: React.FC = () => {
       case 'admin':
         return <AdminPanel />;
       case 'live':
-        return <LiveStream user={user} />;
+        return <LiveStream user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />;
+      case 'market':
+        return <PredictionMarket onBack={() => setActiveTab('feed')} />;
       default:
         return <Feed />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row relative">
       {/* Sidebar - Desktop */}
-      <nav className="hidden lg:flex flex-col w-72 h-screen border-r border-zinc-800 p-6 sticky top-0 overflow-y-auto scrollbar-hide">
-        <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40">
-            <span className="text-2xl font-black italic">V</span>
+      <nav className={`hidden lg:flex flex-col w-72 h-screen border-r border-zinc-800 p-6 ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto scrollbar-hide transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40">
+              <span className="text-2xl font-black italic">V</span>
+            </div>
+            <span className="text-2xl font-black tracking-tighter">VPULSE</span>
           </div>
-          <span className="text-2xl font-black tracking-tighter">VPULSE</span>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-lg hover:bg-zinc-800 transition text-zinc-400 hover:text-white"
+            aria-label="Close sidebar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {/* Search Functionality */}
@@ -66,6 +81,7 @@ const App: React.FC = () => {
           {[
             { id: 'feed', label: 'For You', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
             { id: 'explore', label: 'Explore', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+            { id: 'market', label: 'Markets', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
           ].map(item => (
             <button
               key={item.id}
@@ -132,7 +148,19 @@ const App: React.FC = () => {
       </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 relative overflow-hidden h-screen overflow-y-auto lg:overflow-hidden scrollbar-hide">
+      <main className={`flex-1 relative h-screen overflow-y-auto overflow-x-hidden scrollbar-hide transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
+        {/* Hamburger button when sidebar is closed */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="hidden lg:flex fixed top-4 left-4 z-50 p-3 rounded-lg bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 transition text-zinc-400 hover:text-white shadow-lg backdrop-blur-sm"
+            aria-label="Open sidebar"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
         {renderContent()}
       </main>
 
@@ -142,6 +170,7 @@ const App: React.FC = () => {
           { id: 'feed', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
           { id: 'explore', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' },
           { id: 'live', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z' },
+          { id: 'market', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
           { id: 'creator', icon: 'M12 4v16m8-8H4' },
           { id: 'admin', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' },
         ].map(item => (

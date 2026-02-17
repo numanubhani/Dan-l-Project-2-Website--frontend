@@ -81,12 +81,12 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
 
       {/* Right Side Interaction Bar */}
-      <div className="absolute right-2 bottom-8 lg:bottom-24 flex flex-col items-center space-y-4 lg:space-y-6" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-2 bottom-8 lg:bottom-10 flex flex-col items-center space-y-4 lg:space-y-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center group cursor-pointer">
           <div className="relative mb-2">
-            <img src={video.creatorAvatar} className="w-12 h-12 rounded-full border-2 border-white" alt={video.creatorName} />
+            <img src={video.creatorAvatar} className="w-12 h-12 lg:w-10 lg:h-10 rounded-full border-2 border-white" alt={video.creatorName} />
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-500 rounded-full p-0.5">
-              <svg className="w-4 h-4" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              <svg className="w-4 h-4 lg:w-3 lg:h-3" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             </div>
           </div>
         </div>
@@ -95,22 +95,22 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
           onClick={() => setIsLiked(!isLiked)}
           className="flex flex-col items-center transition active:scale-125"
         >
-          <div className={`p-3 rounded-full ${isLiked ? 'text-red-500 bg-red-500/10' : 'text-white bg-white/10'} hover:bg-white/20 transition`}>
-            <HeartIcon className="w-8 h-8" />
+          <div className={`p-3 lg:p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-500/10' : 'text-white bg-white/10'} hover:bg-white/20 transition`}>
+            <HeartIcon className="w-8 h-8 lg:w-6 lg:h-6" />
           </div>
           <span className="text-xs font-bold mt-1 text-white shadow-sm">{(video.likes / 1000).toFixed(1)}K</span>
         </button>
 
         <button className="flex flex-col items-center text-white">
-          <div className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition">
-            <CommentIcon className="w-8 h-8" />
+          <div className="p-3 lg:p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <CommentIcon className="w-8 h-8 lg:w-6 lg:h-6" />
           </div>
           <span className="text-xs font-bold mt-1">{video.comments}</span>
         </button>
 
         <button className="flex flex-col items-center text-white">
-          <div className="p-3 rounded-full bg-white/10 hover:bg-white/20 transition">
-            <ShareIcon className="w-8 h-8" />
+          <div className="p-3 lg:p-2 rounded-full bg-white/10 hover:bg-white/20 transition">
+            <ShareIcon className="w-8 h-8 lg:w-6 lg:h-6" />
           </div>
           <span className="text-xs font-bold mt-1">Share</span>
         </button>
@@ -118,10 +118,10 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
         {video.betEvent && (
           <button 
             onClick={() => setShowBetting(true)}
-            className="flex flex-col items-center text-purple-400 mt-4"
+            className="flex flex-col items-center text-purple-400 mt-4 lg:mt-2"
           >
-            <div className="p-4 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-400 transition">
-              <BetIcon className="w-10 h-10" />
+            <div className="p-4 lg:p-3 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-400 transition">
+              <BetIcon className="w-10 h-10 lg:w-8 lg:h-8" />
             </div>
             <span className="text-xs font-black mt-2 bg-black/60 px-2 py-1 rounded-lg">BET LIVE</span>
           </button>
