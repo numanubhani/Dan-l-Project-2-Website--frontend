@@ -21,21 +21,24 @@ const AppContent: React.FC = () => {
   const [user, setUser] = useState(MOCK_USER);
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
-  // Hide sidebar by default when on video player route
-  const isVideoPlayerRoute = location.pathname.startsWith('/watch/');
-  const [sidebarOpen, setSidebarOpen] = useState(!isVideoPlayerRoute);
-
-  // Update sidebar state when route changes
-  useEffect(() => {
-    if (isVideoPlayerRoute) {
-      setSidebarOpen(false);
-    }
-  }, [isVideoPlayerRoute]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [notifications] = useState<Notification[]>([
     { id: '1', message: 'You won 450 coins on "Triple Backflip Attempt"!', type: 'bet_win', timestamp: Date.now() - 3600000 },
     { id: '2', message: 'New video from ExtremeSports: "Death Dive"', type: 'new_video', timestamp: Date.now() - 7200000 },
     { id: '3', message: 'Bet lost: "ChefMaster Challenge"', type: 'bet_loss', timestamp: Date.now() - 86400000 },
   ]);
+
+  // Check if device is mobile
+  const isMobile = () => {
+    return window.innerWidth < 1024; // lg breakpoint in Tailwind
+  };
+
+  // Redirect mobile users from root path to /reel
+  useEffect(() => {
+    if (isMobile() && (location.pathname === '/' || location.pathname === '/home')) {
+      navigate('/reel', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   // Get active tab from current path
   const getActiveTab = () => {
@@ -56,7 +59,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
-      {/* Sidebar - Desktop - Hidden on video player route by default */}
+      {/* Sidebar - Desktop */}
       <nav className={`hidden lg:flex flex-col w-60 h-screen border-r border-gray-200 bg-white ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6">
@@ -156,7 +159,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/home" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
-          <Route path="/watch/:id" element={<VideoPlayer onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
+          <Route path="/watch/:id" element={<VideoPlayer />} />
           <Route path="/feed" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/reel" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/explore" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
