@@ -1,9 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MOCK_VIDEOS, MOCK_USER } from '../constants';
 import { HeartIcon, CommentIcon, ShareIcon, BetIcon } from './Icons';
 import BettingOverlay from './BettingOverlay';
-import { Video } from '../types';
+import { Video, User } from '../types';
+
+interface FeedProps {
+  user?: User;
+  onToggleSidebar?: () => void;
+  sidebarOpen?: boolean;
+}
 
 const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string }> = ({ video, isActive, cardHeight }) => {
   const [showBetting, setShowBetting] = useState(false);
@@ -158,7 +165,8 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
   );
 };
 
-const Feed: React.FC = () => {
+const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarOpen = true }) => {
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -193,9 +201,11 @@ const Feed: React.FC = () => {
         setCardHeight(`calc(100vh - ${totalNavbarHeight}px)`);
         setTopOffset(`${topNavbarHeight}px`);
       } else {
-        setContainerHeight('100vh');
-        setCardHeight('100vh');
-        setTopOffset('0px');
+        // Desktop: Account for top bar (56px)
+        const desktopTopBarHeight = 56;
+        setContainerHeight(`calc(100vh - ${desktopTopBarHeight}px)`);
+        setCardHeight(`calc(100vh - ${desktopTopBarHeight}px)`);
+        setTopOffset(`${desktopTopBarHeight}px`);
       }
     };
     updateHeight();
@@ -210,7 +220,103 @@ const Feed: React.FC = () => {
 
   return (
     <div className="w-full min-h-screen bg-black relative">
-      {/* Sticky Top Navbar */}
+      {/* Desktop Top Bar - YouTube Style */}
+      <div className="hidden lg:flex sticky top-0 z-[9998] bg-white border-b border-gray-200 h-14 items-center px-4 w-full">
+        {/* Left Section */}
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          {/* Guide/Hamburger Menu Button - Only show when sidebar is closed */}
+          {!sidebarOpen && (
+            <button
+              onClick={onToggleSidebar}
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              aria-label="Guide"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Center Section - Search */}
+        <div className="flex-1 flex items-center justify-center max-w-3xl mx-8">
+          <form className="w-full flex items-center" onSubmit={(e) => { e.preventDefault(); }}>
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full px-4 py-2.5 pl-11 pr-4 border border-gray-300 rounded-l-full focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm transition"
+              />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 border border-l-0 border-gray-300 rounded-r-full transition flex items-center"
+              aria-label="Search"
+            >
+              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </form>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          {/* Voice Search Button */}
+          <button
+            className="p-2.5 rounded-full hover:bg-gray-100 transition"
+            aria-label="Search with your voice"
+            title="Search with your voice"
+          >
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </button>
+
+          {/* Create Button */}
+          <button
+            onClick={() => navigate('/create')}
+            className="px-4 py-2 flex items-center space-x-2 rounded-full hover:bg-gray-100 transition"
+            aria-label="Create"
+          >
+            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-sm font-medium text-gray-700">Create</span>
+          </button>
+
+          {/* Notifications Button */}
+          <button
+            className="p-2.5 rounded-full hover:bg-gray-100 transition relative"
+            aria-label="Notifications"
+          >
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+          </button>
+
+          {/* Profile Avatar Button */}
+          <button
+            onClick={() => navigate('/profile')}
+            className="p-0.5 rounded-full hover:ring-2 hover:ring-gray-200 transition"
+            aria-label="Account menu"
+          >
+            <img
+              src={user.avatar}
+              alt="Avatar"
+              className="w-9 h-9 rounded-full"
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Sticky Top Navbar */}
       <div className="fixed top-0 left-0 right-0 z-[9998] bg-white border-b border-gray-200 lg:hidden">
         <div className="relative flex items-center">
           {/* Live Icon - Index 0 (Fixed) */}
@@ -297,7 +403,7 @@ const Feed: React.FC = () => {
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen"
+        className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide"
         style={{ 
           height: containerHeight,
           maxHeight: containerHeight,

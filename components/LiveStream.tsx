@@ -19,6 +19,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
   const [showSetOdds, setShowSetOdds] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showFlashBet, setShowFlashBet] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -145,86 +146,111 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-black via-zinc-950 to-black overflow-hidden">
-      {/* Enhanced Top Status Bar */}
-      <div className="relative p-2 sm:p-2.5 lg:p-3 bg-gradient-to-r from-zinc-900 via-zinc-900/95 to-zinc-900 border-b border-zinc-800/50 backdrop-blur-xl shrink-0 shadow-lg shadow-black/20">
+      {/* Enhanced Top Status Bar - Mobile Optimized */}
+      <div className="relative p-2.5 sm:p-3 lg:p-3 bg-gradient-to-r from-zinc-900 via-zinc-900/95 to-zinc-900 border-b border-zinc-800/50 backdrop-blur-xl shrink-0 shadow-lg shadow-black/20">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-400/5 via-transparent to-purple-400/5"></div>
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-            <div className="relative">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden shrink-0 ring-2 ring-purple-400/50 shadow-lg shadow-purple-400/20">
-            <img src={user.avatar} className="w-full h-full object-cover" alt="" />
-          </div>
-              {isLive && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse shadow-lg shadow-red-500/50"></div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <h2 className="font-bold text-xs sm:text-sm truncate bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
-                Streaming as {user.name}
-              </h2>
-              <div className="flex items-center space-x-1.5 mt-0.5">
-                <div className={`flex items-center space-x-1 px-1.5 py-0.5 rounded-full ${isLive ? 'bg-red-500/20' : 'bg-zinc-800/50'}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : 'bg-zinc-500'}`}></span>
-                  <span className="text-[9px] sm:text-[10px] text-zinc-300 uppercase font-black tracking-widest">
-                    {isLive ? 'LIVE' : 'Preview'}
-              </span>
-            </div>
+        <div className="relative flex items-center justify-between gap-2">
+          {/* Left: User Info */}
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <div className="relative shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden ring-2 ring-purple-400/50 shadow-lg shadow-purple-400/20">
+                <img src={user.avatar} className="w-full h-full object-cover" alt="" />
               </div>
-          </div>
-        </div>
-
-        {isLive && (
-            <div className="hidden sm:flex items-center space-x-3 shrink-0 mx-2 sm:mx-3">
-              <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 border border-zinc-700/50 backdrop-blur-sm">
-                <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider mb-0.5">Viewers</p>
-                <p className="text-sm sm:text-base font-black bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
-                  {viewers.toLocaleString()}
-                </p>
-            </div>
-              <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-500/20 border border-purple-400/30 backdrop-blur-sm">
-                <p className="text-[9px] text-purple-300 font-bold uppercase tracking-wider mb-0.5">Active Bets</p>
-                <p className="text-sm sm:text-base font-black text-purple-400">
-                  {activeBets}
-                </p>
-            </div>
-          </div>
-        )}
-
-        <button 
-          onClick={toggleLive}
-            className={`relative px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 overflow-hidden group ${
-            isLive 
-              ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30' 
-              : 'bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white shadow-lg shadow-purple-400/30'
-          }`}
-        >
-            <span className="relative z-10 flex items-center space-x-1.5">
-              {isLive ? (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 6h12v12H6z"/>
-                  </svg>
-                  <span className="hidden sm:inline">End Stream</span>
-                  <span className="sm:hidden">End</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                  <span className="hidden sm:inline">Go Live</span>
-                  <span className="sm:hidden">Live</span>
-                </>
+              {isLive && (
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse shadow-lg shadow-red-500/50"></div>
               )}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-        </button>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h2 className="font-bold text-sm truncate bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
+                {user.name}
+              </h2>
+              <div className="flex items-center space-x-2 mt-0.5">
+                <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full ${isLive ? 'bg-red-500/20' : 'bg-zinc-800/50'}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-red-500 animate-pulse' : 'bg-zinc-500'}`}></span>
+                  <span className="text-[10px] text-zinc-300 uppercase font-black tracking-wider">
+                    {isLive ? 'LIVE' : 'Preview'}
+                  </span>
+                </div>
+                {isLive && (
+                  <>
+                    <div className="hidden sm:flex items-center space-x-1 px-2 py-0.5 rounded-full bg-zinc-800/50">
+                      <svg className="w-3 h-3 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                      </svg>
+                      <span className="text-[10px] font-bold text-white">{viewers}</span>
+                    </div>
+                    <div className="hidden sm:flex items-center space-x-1 px-2 py-0.5 rounded-full bg-purple-500/20">
+                      <span className="text-[10px] font-bold text-purple-300">{activeBets}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Live Button & Mobile Menu */}
+          <div className="flex items-center space-x-2 shrink-0">
+            {isLive && (
+              <div className="hidden sm:flex items-center space-x-2">
+                <div className="text-center px-2.5 py-1 rounded-lg bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 border border-zinc-700/50 backdrop-blur-sm">
+                  <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider mb-0.5">Viewers</p>
+                  <p className="text-sm font-black bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
+                    {viewers.toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-center px-2.5 py-1 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-500/20 border border-purple-400/30 backdrop-blur-sm">
+                  <p className="text-[9px] text-purple-300 font-bold uppercase tracking-wider mb-0.5">Bets</p>
+                  <p className="text-sm font-black text-purple-400">
+                    {activeBets}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <button 
+              onClick={toggleLive}
+              className={`relative px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm transition-all duration-300 overflow-hidden group ${
+                isLive 
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30' 
+                  : 'bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white shadow-lg shadow-purple-400/30'
+              }`}
+            >
+              <span className="relative z-10 flex items-center space-x-1.5">
+                {isLive ? (
+                  <>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M6 6h12v12H6z"/>
+                    </svg>
+                    <span className="hidden sm:inline">End</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    <span>Go Live</span>
+                  </>
+                )}
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+            </button>
+
+            {/* Mobile Sidebar Toggle */}
+            <button
+              onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+              className="lg:hidden p-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 sm:p-3 lg:p-4 gap-2 sm:gap-3 lg:gap-4 min-h-0 h-full">
-        {/* Enhanced Main Feed Section */}
-        <div className="flex-1 relative bg-gradient-to-br from-zinc-900 to-black rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-zinc-800/50 min-w-0 min-h-0 max-w-full group">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-2 sm:p-3 lg:p-4 gap-2 sm:gap-3 lg:gap-4 min-h-0 h-full relative">
+        {/* Enhanced Main Feed Section - Mobile Optimized */}
+        <div className="flex-1 relative bg-gradient-to-br from-zinc-900 to-black rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl border border-zinc-800/50 min-w-0 min-h-0 max-w-full group">
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none z-10"></div>
           <video 
             ref={videoRef} 
@@ -235,41 +261,41 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           />
           <canvas ref={canvasRef} className="hidden" />
           
-          {/* Enhanced Overlay Stats */}
+          {/* Enhanced Overlay Stats - Mobile Optimized */}
           <div className="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 flex flex-wrap gap-1.5 sm:gap-2 z-20">
             {isLive && (
-              <div className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-red-500/30 shadow-lg">
+              <div className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-red-500/30 shadow-lg">
                 <div className="relative">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-75"></div>
                 </div>
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-white">LIVE</span>
-            </div>
+                <span className="text-xs font-black uppercase tracking-wider text-white">LIVE</span>
+              </div>
             )}
-            <div className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/10 shadow-lg">
-              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/10 shadow-lg">
+              <svg className="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
               </svg>
-              <span className="text-[10px] sm:text-xs font-bold text-white font-mono">{formatTime(streamTime)}</span>
+              <span className="text-xs font-bold text-white font-mono">{formatTime(streamTime)}</span>
             </div>
           </div>
 
-          {/* Enhanced Bottom Info Card */}
+          {/* Enhanced Bottom Info Card - Mobile Optimized */}
           <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 left-2 sm:left-3 lg:left-4 right-2 sm:right-3 lg:right-4 z-20">
-            <div className="bg-gradient-to-br from-black/80 via-black/70 to-black/80 backdrop-blur-xl p-2.5 sm:p-3 lg:p-4 rounded-xl border border-white/10 shadow-2xl">
+            <div className="bg-gradient-to-br from-black/85 via-black/75 to-black/85 backdrop-blur-xl p-3 sm:p-3.5 lg:p-4 rounded-xl border border-white/10 shadow-2xl">
               <h3 className="text-sm sm:text-base lg:text-lg font-black mb-1 bg-gradient-to-r from-white via-zinc-100 to-zinc-300 bg-clip-text text-transparent">
                 Testing the new setup! 🚀
               </h3>
-              <p className="text-zinc-300 text-[10px] sm:text-xs hidden sm:block">
+              <p className="text-zinc-300 text-xs sm:text-sm hidden sm:block">
                 Participate in flash bets for a chance to win 500 Pulse Coins!
               </p>
             </div>
           </div>
 
-          {/* Streamer Toolbox Button */}
+          {/* Streamer Toolbox Button - Mobile Optimized */}
           <button
             onClick={() => setShowToolbox(true)}
-            className="absolute bottom-4 sm:bottom-6 lg:bottom-8 right-4 sm:right-6 lg:right-8 z-30 p-3 sm:p-3.5 lg:p-4 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 group flex items-center space-x-2 sm:space-x-3"
+            className="absolute bottom-28 sm:bottom-32 lg:bottom-36 right-3 sm:right-4 lg:right-8 z-30 p-3 sm:p-3.5 lg:p-4 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 active:scale-95 text-white shadow-2xl shadow-green-500/30 hover:shadow-green-500/50 transition-all duration-300 group flex items-center space-x-2"
           >
             <div className="p-1.5 sm:p-2 rounded-lg bg-white/20 group-hover:bg-white/30 transition-colors">
               <BetIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -278,15 +304,15 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
               <p className="font-bold text-sm sm:text-base">Streamer</p>
               <p className="text-xs text-green-100">Toolbox</p>
             </div>
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
 
-          {/* Streamer Toolbox Modal */}
+          {/* Streamer Toolbox Modal - Mobile Optimized */}
           {showToolbox && (
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-4" onClick={() => setShowToolbox(false)}>
-              <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-40 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowToolbox(false)}>
+              <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4 sm:mb-5">
                   <h3 className="font-bold text-lg sm:text-xl lg:text-2xl flex items-center bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">
                     <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-green-500/20 border border-green-500/30">
@@ -415,35 +441,45 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           )}
         </div>
 
-        {/* Enhanced Control & Chat Sidebar */}
-        <div className="w-full lg:w-72 xl:w-80 2xl:w-96 flex flex-col gap-2 sm:gap-2.5 lg:gap-3 overflow-hidden min-w-0 shrink-0 max-w-full h-full flex-shrink-0">
-          {/* Enhanced AI Producer Controls */}
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-xl p-2.5 sm:p-3 lg:p-4 shrink-0 shadow-xl backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-2 sm:mb-2.5">
-              <h4 className="font-bold flex items-center text-sm sm:text-base bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
-                <div className="mr-1.5 p-1 rounded-lg bg-purple-400/20 border border-purple-400/30">
-                  <RadioIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
+        {/* Enhanced Control & Chat Sidebar - Mobile Optimized */}
+        <div className={`lg:w-72 xl:w-80 2xl:w-96 flex flex-col gap-2 sm:gap-2.5 lg:gap-3 overflow-hidden min-w-0 shrink-0 max-w-full h-full flex-shrink-0
+          ${showMobileSidebar ? 'fixed inset-0 z-50 bg-black/95 backdrop-blur-xl lg:relative lg:bg-transparent lg:backdrop-blur-0' : 'hidden lg:flex'}
+        `}>
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setShowMobileSidebar(false)}
+            className="lg:hidden absolute top-4 right-4 p-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors z-10"
+          >
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          {/* Enhanced AI Producer Controls - Mobile Optimized */}
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-xl p-3 sm:p-3.5 lg:p-4 shrink-0 shadow-xl backdrop-blur-sm mt-12 lg:mt-0">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-bold flex items-center text-base sm:text-lg bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+                <div className="mr-2 p-1.5 rounded-lg bg-purple-400/20 border border-purple-400/30">
+                  <RadioIcon className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                 </div>
-                <span className="hidden sm:inline">AI Producer</span>
-                <span className="sm:hidden">AI</span>
+                <span>AI Producer</span>
               </h4>
               <div 
                 onClick={() => setIsAiEnabled(!isAiEnabled)}
-                className={`relative w-10 h-5 sm:w-12 sm:h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 shrink-0 ${
+                className={`relative w-12 h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 shrink-0 ${
                   isAiEnabled 
                   ? 'bg-gradient-to-r from-purple-400 to-purple-500 shadow-lg shadow-purple-400/30' 
                   : 'bg-zinc-700'
                 }`}
               >
-                <div className={`w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full transition-transform duration-300 shadow-lg ${isAiEnabled ? 'translate-x-5 sm:translate-x-6' : 'translate-x-0'}`}></div>
+                <div className={`w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-lg ${isAiEnabled ? 'translate-x-6' : 'translate-x-0'}`}></div>
               </div>
             </div>
-            <p className="text-[10px] sm:text-xs text-zinc-400 mb-2 hidden sm:block leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-400 mb-3 leading-relaxed">
               Gemini will analyze your video frames to generate hype and suggest bets.
             </p>
-            <div className="bg-gradient-to-br from-purple-400/10 to-purple-500/10 p-2 sm:p-2.5 rounded-lg border border-purple-400/20 backdrop-blur-sm">
-              <p className="text-[10px] sm:text-xs text-purple-300 italic flex items-center space-x-1.5">
-                <svg className="w-3 h-3 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-br from-purple-400/10 to-purple-500/10 p-3 rounded-lg border border-purple-400/20 backdrop-blur-sm">
+              <p className="text-xs sm:text-sm text-purple-300 italic flex items-center space-x-2">
+                <svg className="w-4 h-4 text-purple-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
                 </svg>
                 <span>"AI is currently watching for epic moments..."</span>
@@ -451,40 +487,40 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
             </div>
           </div>
 
-          {/* Enhanced Live Chat */}
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-xl p-2.5 sm:p-3 lg:p-4 flex-1 flex flex-col overflow-hidden min-h-0 max-h-full shadow-xl backdrop-blur-sm">
-            <div className="mt-2 sm:mt-2.5 lg:mt-3 pt-3 sm:pt-3.5 border-t border-zinc-800/50 shrink-0">
-              <div className="bg-gradient-to-br from-zinc-800/60 to-zinc-900/60 rounded-lg p-2 sm:p-2.5 border border-zinc-700/50 backdrop-blur-sm">
-                <div className="flex items-center space-x-1.5 mb-2">
-                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                  <h5 className="text-[9px] sm:text-[10px] font-black uppercase text-zinc-400 tracking-widest">Live Chat</h5>
+          {/* Enhanced Live Chat - Mobile Optimized */}
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-xl p-3 sm:p-3.5 lg:p-4 flex-1 flex flex-col overflow-hidden min-h-0 max-h-full shadow-xl backdrop-blur-sm">
+            <div className="pt-3 border-t border-zinc-800/50 shrink-0">
+              <div className="bg-gradient-to-br from-zinc-800/60 to-zinc-900/60 rounded-lg p-3 border border-zinc-700/50 backdrop-blur-sm">
+                <div className="flex items-center space-x-2 mb-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <h5 className="text-xs font-black uppercase text-zinc-400 tracking-widest">Live Chat</h5>
                 </div>
-                <div className="space-y-1.5 h-20 sm:h-24 lg:h-28 overflow-y-auto pr-1.5 text-[10px] sm:text-xs scrollbar-hide sidebar-scrollbar">
-                  <div className="flex items-start space-x-1.5 p-1.5 rounded-lg hover:bg-zinc-800/30 transition-colors">
-                    <span className="text-purple-400 font-bold shrink-0 text-[10px]">User99:</span>
-                    <span className="text-zinc-300 text-[10px]">Let's goooo! 🔥</span>
+                <div className="space-y-2 h-32 sm:h-40 lg:h-48 overflow-y-auto pr-2 text-xs scrollbar-hide sidebar-scrollbar">
+                  <div className="flex items-start space-x-2 p-2 rounded-lg hover:bg-zinc-800/30 transition-colors">
+                    <span className="text-purple-400 font-bold shrink-0 text-xs">User99:</span>
+                    <span className="text-zinc-300 text-xs">Let's goooo! 🔥</span>
                   </div>
-                  <div className="flex items-start space-x-1.5 p-1.5 rounded-lg hover:bg-zinc-800/30 transition-colors">
-                    <span className="text-zinc-400 font-bold shrink-0 text-[10px]">BetBot:</span>
-                    <span className="text-zinc-300 text-[10px]">New bet pool started: $450</span>
+                  <div className="flex items-start space-x-2 p-2 rounded-lg hover:bg-zinc-800/30 transition-colors">
+                    <span className="text-zinc-400 font-bold shrink-0 text-xs">BetBot:</span>
+                    <span className="text-zinc-300 text-xs">New bet pool started: $450</span>
                   </div>
-                  <div className="flex items-start space-x-1.5 p-1.5 rounded-lg hover:bg-zinc-800/30 transition-colors">
-                    <span className="text-green-400 font-bold shrink-0 text-[10px]">Mod_Dave:</span>
-                    <span className="text-zinc-300 text-[10px]">Be nice in chat everyone!</span>
+                  <div className="flex items-start space-x-2 p-2 rounded-lg hover:bg-zinc-800/30 transition-colors">
+                    <span className="text-green-400 font-bold shrink-0 text-xs">Mod_Dave:</span>
+                    <span className="text-zinc-300 text-xs">Be nice in chat everyone!</span>
                   </div>
-                  <div className="flex items-start space-x-1.5 p-1.5 rounded-lg hover:bg-zinc-800/30 transition-colors">
-                    <span className="text-purple-400 font-bold shrink-0 text-[10px]">Alex_Fan:</span>
-                    <span className="text-zinc-300 text-[10px]">Just bet 50 coins on YES!</span>
-            </div>
+                  <div className="flex items-start space-x-2 p-2 rounded-lg hover:bg-zinc-800/30 transition-colors">
+                    <span className="text-purple-400 font-bold shrink-0 text-xs">Alex_Fan:</span>
+                    <span className="text-zinc-300 text-xs">Just bet 50 coins on YES!</span>
+                  </div>
                 </div>
-                <div className="mt-2 sm:mt-2.5 flex gap-1.5">
+                <div className="mt-3 flex gap-2">
                   <input 
                     type="text" 
                     placeholder="Type a message..." 
-                    className="flex-1 bg-black/40 border border-zinc-700/50 rounded-lg px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" 
+                    className="flex-1 bg-black/40 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" 
                   />
-                  <button className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 p-1.5 sm:p-2 rounded-lg shrink-0 transition-all shadow-lg shadow-purple-400/20 hover:shadow-purple-400/30">
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                  <button className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 active:scale-95 p-2.5 rounded-lg shrink-0 transition-all shadow-lg shadow-purple-400/20 hover:shadow-purple-400/30">
+                    <svg className="w-5 h-5" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                   </button>
                 </div>
               </div>
@@ -493,10 +529,10 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
         </div>
       </div>
 
-      {/* Create Bet Modal */}
+      {/* Create Bet Modal - Mobile Optimized */}
       {showCreateBet && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowCreateBet(false)}>
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowCreateBet(false)}>
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[95vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="font-bold text-lg sm:text-xl lg:text-2xl flex items-center bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
                 <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-purple-400/20 border border-purple-400/30">
@@ -591,10 +627,10 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
         </div>
       )}
 
-      {/* Create Poll Modal */}
+      {/* Create Poll Modal - Mobile Optimized */}
       {showCreatePoll && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowCreatePoll(false)}>
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4" onClick={() => setShowCreatePoll(false)}>
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[95vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="font-bold text-lg sm:text-xl lg:text-2xl flex items-center bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
                 <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-blue-500/20 border border-blue-500/30">
