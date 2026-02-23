@@ -46,12 +46,12 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
         <div className="flex gap-4">
           <button 
             onClick={() => setShowUpload(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-2xl flex items-center shadow-lg shadow-purple-500/20 transition-all active:scale-95"
+            className="bg-purple-400 hover:bg-purple-500 text-white font-bold px-6 py-3 rounded-2xl flex items-center shadow-lg shadow-purple-400/20 transition-all active:scale-95"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
             Upload Video
           </button>
-          <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-500/30 group relative">
+          <div className="bg-zinc-900 p-4 rounded-2xl border border-purple-400/30 group relative">
             <p className="text-xs text-zinc-500 uppercase font-bold tracking-widest mb-1">Total Balance</p>
             <p className="text-2xl font-black text-purple-400">${user.balance.toLocaleString()}</p>
             <button className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg">WITHDRAW</button>
@@ -74,7 +74,7 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
               {uploadProgress > 0 ? (
                 <div className="py-20 text-center">
                   <div className="w-full bg-zinc-800 rounded-full h-4 mb-4 overflow-hidden">
-                    <div className="bg-purple-600 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                    <div className="bg-purple-400 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                   </div>
                   <p className="text-zinc-400 font-bold">Uploading... {uploadProgress}%</p>
                 </div>
@@ -84,11 +84,11 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Video Title</label>
-                        <input type="text" placeholder="e.g. Insane Trickshot" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-500" required />
+                        <input type="text" placeholder="e.g. Insane Trickshot" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-400" required />
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Description</label>
-                        <textarea rows={3} placeholder="Tell your audience about the video..." className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-500 resize-none"></textarea>
+                        <textarea rows={3} placeholder="Tell your audience about the video..." className="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-400 resize-none"></textarea>
                       </div>
                     </div>
                     
@@ -99,7 +99,7 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
                     </div>
                   </div>
 
-                  <div className="bg-purple-500/5 border border-purple-500/20 p-6 rounded-2xl">
+                  <div className="bg-purple-400/5 border border-purple-400/20 p-6 rounded-2xl">
                     <h3 className="font-bold mb-4 flex items-center text-purple-400">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       Setup Betting Event
@@ -107,7 +107,7 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
                     <div className="space-y-4">
                       <div>
                         <label className="block text-xs font-bold text-zinc-500 mb-2 uppercase">Betting Question</label>
-                        <input type="text" placeholder="Will I land the jump?" className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-500" />
+                        <input type="text" placeholder="Will I land the jump?" className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-400" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <input type="text" placeholder="Option A (e.g. Yes)" className="bg-zinc-900 border border-zinc-700 rounded-xl p-3 text-sm" />
@@ -116,7 +116,7 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
                     </div>
                   </div>
 
-                  <button type="submit" className="w-full py-4 bg-purple-600 hover:bg-purple-700 rounded-2xl font-black text-lg transition-all shadow-xl shadow-purple-500/20">
+                  <button type="submit" className="w-full py-4 bg-purple-400 hover:bg-purple-500 rounded-2xl font-black text-lg transition-all shadow-xl shadow-purple-400/20">
                     Submit Content
                   </button>
                 </>
@@ -171,7 +171,7 @@ const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
           { label: 'Total Viewers', val: '1.2M' },
           { label: 'Avg Payout/Vid', val: '$450' }
         ].map((stat, i) => (
-          <div key={i} className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl hover:border-purple-500/50 transition">
+          <div key={i} className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl hover:border-purple-400/50 transition">
             <p className="text-zinc-500 text-sm font-bold uppercase mb-2">{stat.label}</p>
             <p className="text-3xl font-black">{stat.val}</p>
           </div>

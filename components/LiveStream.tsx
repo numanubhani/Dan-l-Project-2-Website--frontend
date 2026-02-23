@@ -147,11 +147,11 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
     <div className="flex flex-col h-screen bg-gradient-to-br from-black via-zinc-950 to-black overflow-hidden">
       {/* Enhanced Top Status Bar */}
       <div className="relative p-2 sm:p-2.5 lg:p-3 bg-gradient-to-r from-zinc-900 via-zinc-900/95 to-zinc-900 border-b border-zinc-800/50 backdrop-blur-xl shrink-0 shadow-lg shadow-black/20">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-purple-500/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/5 via-transparent to-purple-400/5"></div>
         <div className="relative flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
             <div className="relative">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 overflow-hidden shrink-0 ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden shrink-0 ring-2 ring-purple-400/50 shadow-lg shadow-purple-400/20">
             <img src={user.avatar} className="w-full h-full object-cover" alt="" />
           </div>
               {isLive && (
@@ -181,7 +181,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   {viewers.toLocaleString()}
                 </p>
             </div>
-              <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-600/20 border border-purple-500/30 backdrop-blur-sm">
+              <div className="text-center px-3 py-1.5 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-500/20 border border-purple-400/30 backdrop-blur-sm">
                 <p className="text-[9px] text-purple-300 font-bold uppercase tracking-wider mb-0.5">Active Bets</p>
                 <p className="text-sm sm:text-base font-black text-purple-400">
                   {activeBets}
@@ -195,7 +195,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
             className={`relative px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm transition-all duration-300 shrink-0 overflow-hidden group ${
             isLive 
               ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30' 
-              : 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg shadow-purple-500/30'
+              : 'bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white shadow-lg shadow-purple-400/30'
           }`}
         >
             <span className="relative z-10 flex items-center space-x-1.5">
@@ -314,7 +314,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                           setShowCreateBet(true);
                           setShowToolbox(false);
                         }}
-                        className="group w-full bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 p-3 sm:p-4 rounded-xl text-left border border-purple-500/50 transition-all duration-300 active:scale-[0.98] flex items-center space-x-3 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30"
+                        className="group w-full bg-gradient-to-br from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 p-3 sm:p-4 rounded-xl text-left border border-purple-400/50 transition-all duration-300 active:scale-[0.98] flex items-center space-x-3 shadow-lg shadow-purple-400/20 hover:shadow-purple-400/30"
                       >
                         <div className="p-2 rounded-lg bg-white/10 group-hover:bg-white/20 transition-colors">
                           <BetIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
@@ -421,7 +421,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-xl p-2.5 sm:p-3 lg:p-4 shrink-0 shadow-xl backdrop-blur-sm">
             <div className="flex items-center justify-between mb-2 sm:mb-2.5">
               <h4 className="font-bold flex items-center text-sm sm:text-base bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
-                <div className="mr-1.5 p-1 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                <div className="mr-1.5 p-1 rounded-lg bg-purple-400/20 border border-purple-400/30">
                   <RadioIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-purple-400" />
                 </div>
                 <span className="hidden sm:inline">AI Producer</span>
@@ -431,7 +431,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                 onClick={() => setIsAiEnabled(!isAiEnabled)}
                 className={`relative w-10 h-5 sm:w-12 sm:h-6 rounded-full p-0.5 cursor-pointer transition-all duration-300 shrink-0 ${
                   isAiEnabled 
-                  ? 'bg-gradient-to-r from-purple-600 to-purple-700 shadow-lg shadow-purple-500/30' 
+                  ? 'bg-gradient-to-r from-purple-400 to-purple-500 shadow-lg shadow-purple-400/30' 
                   : 'bg-zinc-700'
                 }`}
               >
@@ -441,7 +441,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
             <p className="text-[10px] sm:text-xs text-zinc-400 mb-2 hidden sm:block leading-relaxed">
               Gemini will analyze your video frames to generate hype and suggest bets.
             </p>
-            <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 p-2 sm:p-2.5 rounded-lg border border-purple-500/20 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-purple-400/10 to-purple-500/10 p-2 sm:p-2.5 rounded-lg border border-purple-400/20 backdrop-blur-sm">
               <p className="text-[10px] sm:text-xs text-purple-300 italic flex items-center space-x-1.5">
                 <svg className="w-3 h-3 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
@@ -481,9 +481,9 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   <input 
                     type="text" 
                     placeholder="Type a message..." 
-                    className="flex-1 bg-black/40 border border-zinc-700/50 rounded-lg px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all" 
+                    className="flex-1 bg-black/40 border border-zinc-700/50 rounded-lg px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all" 
                   />
-                  <button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 p-1.5 sm:p-2 rounded-lg shrink-0 transition-all shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30">
+                  <button className="bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 p-1.5 sm:p-2 rounded-lg shrink-0 transition-all shadow-lg shadow-purple-400/20 hover:shadow-purple-400/30">
                     <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="white" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                   </button>
                 </div>
@@ -499,7 +499,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="font-bold text-lg sm:text-xl lg:text-2xl flex items-center bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
-                <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-purple-400/20 border border-purple-400/30">
                   <BetIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
                 </div>
                 Create Custom Bet
@@ -522,7 +522,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   value={betQuestion}
                   onChange={(e) => setBetQuestion(e.target.value)}
                   placeholder="e.g., Will I land this trick?"
-                  className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
+                  className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all"
                 />
               </div>
 
@@ -536,7 +536,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                         value={option}
                         onChange={(e) => updateBetOption(idx, e.target.value)}
                         placeholder={`Option ${idx + 1}`}
-                        className="flex-1 bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-2.5 text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
+                        className="flex-1 bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-2.5 text-sm sm:text-base text-white placeholder-zinc-500 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all"
                       />
                       {betOptions.length > 2 && (
                         <button
@@ -552,7 +552,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   ))}
                   <button
                     onClick={addBetOption}
-                    className="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-zinc-700/50 hover:border-purple-500/50 text-zinc-400 hover:text-purple-400 transition-all text-sm sm:text-base font-bold"
+                    className="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-zinc-700/50 hover:border-purple-400/50 text-zinc-400 hover:text-purple-300 transition-all text-sm sm:text-base font-bold"
                   >
                     + Add Option
                   </button>
@@ -567,7 +567,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                   onChange={(e) => setBetDuration(Number(e.target.value))}
                   min="10"
                   max="300"
-                  className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
+                  className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-sm sm:text-base text-white focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all"
                 />
               </div>
 
@@ -581,7 +581,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
                 <button
                   onClick={handleCreateBet}
                   disabled={!betQuestion || betOptions.filter(o => o.trim()).length < 2}
-                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold shadow-lg shadow-purple-500/20"
+                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold shadow-lg shadow-purple-400/20"
                 >
                   Create Bet
                 </button>
@@ -809,7 +809,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
           <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800/50 rounded-2xl p-4 sm:p-5 lg:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto sidebar-scrollbar shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <h3 className="font-bold text-lg sm:text-xl lg:text-2xl flex items-center bg-gradient-to-r from-purple-400 to-pink-300 bg-clip-text text-transparent">
-                <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-purple-500/20 border border-purple-500/30">
+                <div className="mr-2 sm:mr-3 p-1.5 sm:p-2 rounded-lg bg-purple-400/20 border border-purple-400/30">
                   <span className="text-xl sm:text-2xl">📉</span>
                 </div>
                 Bet Analytics
@@ -825,7 +825,7 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5">
-              <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-xl p-3 sm:p-4 border border-purple-500/30">
+              <div className="bg-gradient-to-br from-purple-400/20 to-purple-500/20 rounded-xl p-3 sm:p-4 border border-purple-400/30">
                 <p className="text-xs sm:text-sm text-purple-300 font-bold uppercase mb-1">Total Bets</p>
                 <p className="text-2xl sm:text-3xl font-black text-white">1,247</p>
               </div>

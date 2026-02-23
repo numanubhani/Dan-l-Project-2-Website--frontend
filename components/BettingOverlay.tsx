@@ -31,7 +31,7 @@ const BettingOverlay: React.FC<BettingOverlayProps> = ({ event, user, onPlaceBet
 
   return (
     <div className="fixed inset-0 bg-black/80 flex flex-col justify-end z-[200] animate-in slide-in-from-bottom duration-300">
-      <div className="bg-zinc-900 rounded-t-3xl p-4 lg:p-6 border-t border-purple-500/30 max-h-[85vh] lg:max-h-[90vh] overflow-y-auto pb-20 lg:pb-6 scrollbar-hide">
+      <div className="bg-zinc-900 rounded-t-3xl p-4 lg:p-6 border-t border-purple-400/30 max-h-[85vh] lg:max-h-[90vh] overflow-y-auto pb-20 lg:pb-6 scrollbar-hide">
         <div className="flex justify-between items-start mb-4 lg:mb-6">
           <div className="flex-1 pr-2">
             <h3 className="text-lg lg:text-xl font-bold text-white mb-1">{event.question}</h3>
@@ -55,7 +55,7 @@ const BettingOverlay: React.FC<BettingOverlayProps> = ({ event, user, onPlaceBet
               onClick={() => setSelectedOption(option.id)}
               className={`w-full p-3 lg:p-4 rounded-xl border-2 transition-all flex justify-between items-center ${
                 selectedOption === option.id 
-                ? 'border-purple-500 bg-purple-500/10' 
+                ? 'border-purple-400 bg-purple-400/10' 
                 : 'border-zinc-800 bg-zinc-800/50 hover:border-zinc-700'
               }`}
             >
@@ -72,7 +72,7 @@ const BettingOverlay: React.FC<BettingOverlayProps> = ({ event, user, onPlaceBet
               type="number"
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
-              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-500 font-bold text-lg lg:text-xl"
+              className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl p-3 focus:outline-none focus:border-purple-400 font-bold text-lg lg:text-xl"
             />
             <div className="flex space-x-2 shrink-0">
               {[10, 50, 100].map(val => (
@@ -100,7 +100,7 @@ const BettingOverlay: React.FC<BettingOverlayProps> = ({ event, user, onPlaceBet
         <button
           disabled={!selectedOption || amount <= 0 || amount > user.balance}
           onClick={() => selectedOption && onPlaceBet(selectedOption, amount)}
-          className="w-full py-3 lg:py-4 bg-purple-600 hover:bg-purple-700 disabled:bg-zinc-800 disabled:text-zinc-600 rounded-xl font-bold text-base lg:text-lg shadow-lg shadow-purple-500/20 transition-all active:scale-95"
+          className="w-full py-3 lg:py-4 bg-purple-400 hover:bg-purple-500 disabled:bg-zinc-800 disabled:text-zinc-600 rounded-xl font-bold text-base lg:text-lg shadow-lg shadow-purple-400/20 transition-all active:scale-95"
         >
           {amount > user.balance ? 'Insufficient Funds' : 'Place Bet'}
         </button>

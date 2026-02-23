@@ -118,8 +118,8 @@ const Button: React.FC<ButtonProps> = ({ children, onClick, variant = 'primary',
   const variantClasses = {
     green: 'bg-green-600 hover:bg-green-700 text-white',
     red: 'bg-red-600 hover:bg-red-700 text-white',
-    primary: 'bg-purple-600 hover:bg-purple-700 text-white',
-    secondary: 'bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700'
+    primary: 'bg-purple-400 hover:bg-purple-500 text-white',
+    secondary: 'bg-gray-100 hover:bg-gray-200 text-gray-900 border border-gray-300'
   };
 
   return (
@@ -144,12 +144,12 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ percentage, color
   return (
     <div className="flex-1">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-[10px] sm:text-xs font-bold text-zinc-300 truncate mr-2">{label}</span>
+        <span className="text-[10px] sm:text-xs font-bold text-gray-700 truncate mr-2">{label}</span>
         <span className={`text-[10px] sm:text-xs font-black shrink-0 ${color === 'green' ? 'text-green-400' : 'text-red-400'}`}>
           {percentage}%
         </span>
       </div>
-      <div className="h-1.5 sm:h-2 bg-zinc-800 rounded-full overflow-hidden">
+      <div className="h-1.5 sm:h-2 bg-gray-200 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${
             color === 'green' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-rose-500'
@@ -170,14 +170,14 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   return (
-    <div className="group bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-xl p-3 sm:p-4 hover:border-zinc-700 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5">
+    <div className="group bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-purple-300 transition-all duration-300 hover:shadow-lg hover:shadow-purple-200 hover:-translate-y-0.5">
       {/* Header */}
       <div className="flex items-start justify-between mb-2.5 sm:mb-3">
         <div className="flex items-start space-x-2 sm:space-x-2.5 flex-1 min-w-0">
           {market.avatar ? (
             <img src={market.avatar} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full shrink-0" alt="" />
           ) : (
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 flex items-center justify-center shrink-0">
               <span className="text-[10px] sm:text-xs font-black text-white">M</span>
             </div>
           )}
@@ -189,9 +189,9 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
                   <span className="text-[8px] sm:text-[9px] text-red-400 font-black uppercase tracking-wider">LIVE</span>
                 </div>
               )}
-              <span className="text-[8px] sm:text-[9px] text-zinc-500 font-bold uppercase">{market.category}</span>
+              <span className="text-[8px] sm:text-[9px] text-gray-500 font-bold uppercase">{market.category}</span>
             </div>
-            <h3 className="text-xs sm:text-sm font-bold text-white leading-snug group-hover:text-purple-300 transition-colors line-clamp-2">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug group-hover:text-purple-600 transition-colors line-clamp-2">
               {market.title}
             </h3>
           </div>
@@ -202,7 +202,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
               e.stopPropagation();
               // Filter action
             }}
-            className="p-1 sm:p-1.5 rounded-lg hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors opacity-0 group-hover:opacity-100"
+            className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors opacity-0 group-hover:opacity-100"
           >
             <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -216,7 +216,7 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
             className={`p-1 sm:p-1.5 rounded-lg transition-colors ${
               isBookmarked
                 ? 'text-yellow-400 bg-yellow-400/10'
-                : 'text-zinc-500 hover:text-yellow-400 hover:bg-yellow-400/10 opacity-0 group-hover:opacity-100'
+                : 'text-gray-500 hover:text-yellow-500 hover:bg-yellow-50 opacity-0 group-hover:opacity-100'
             }`}
           >
             <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill={isBookmarked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -240,8 +240,8 @@ const MarketCard: React.FC<MarketCardProps> = ({ market }) => {
 
       {/* Volume and Actions */}
       <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-zinc-800">
-        <div className="text-[10px] sm:text-xs text-zinc-400">
-          <span className="font-bold text-zinc-300">{market.volume}</span> Vol
+        <div className="text-[10px] sm:text-xs text-gray-500">
+          <span className="font-bold text-gray-700">{market.volume}</span> Vol
         </div>
         <div className="flex items-center space-x-1.5">
           {market.options.map((option, idx) => (
@@ -292,8 +292,8 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
             onClick={() => onCategoryChange(category)}
             className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-[10px] sm:text-xs whitespace-nowrap transition-all duration-200 ${
               activeCategory === category
-                ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md shadow-purple-500/30'
-                : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300 border border-zinc-800'
+                ? 'bg-gradient-to-r from-purple-400 to-purple-500 text-white shadow-md shadow-purple-400/30'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-200'
             }`}
           >
             {category}
@@ -319,10 +319,10 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange }) => {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40">
-              <span className="text-lg sm:text-2xl font-black italic text-white">V</span>
-            </div>
-            <span className="text-lg sm:text-2xl font-black tracking-tighter text-white">VPULSE</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/30">
+            <span className="text-lg sm:text-2xl font-black italic text-white">V</span>
+          </div>
+          <span className="text-lg sm:text-2xl font-black tracking-tighter text-gray-900">VPULSE</span>
           </div>
 
           {/* Search */}
@@ -338,7 +338,7 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange }) => {
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder="Search markets..."
-                className="block w-full pl-10 pr-3 py-2.5 border border-zinc-800 rounded-xl bg-zinc-900 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-sm transition"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-sm transition"
               />
             </div>
           </div>
@@ -420,16 +420,16 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
   });
 
   return (
-    <div className="h-full w-full bg-[#0f172a] text-white overflow-y-auto overflow-x-hidden">
+    <div className="h-full w-full bg-white text-gray-900 overflow-y-auto overflow-x-hidden">
       {/* Top Bar with Search and Menu */}
-      <div className="sticky top-0 z-40 bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-900 border-b border-zinc-800 backdrop-blur-xl">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 backdrop-blur-xl shadow-sm">
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Mobile Back Button */}
             {onBack && (
               <button
                 onClick={onBack}
-                className="lg:hidden mr-2 sm:mr-3 px-3 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-white transition-colors border border-zinc-700 hover:border-purple-500/50 flex items-center space-x-1.5 font-bold text-sm"
+                className="lg:hidden mr-2 sm:mr-3 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors border border-gray-300 hover:border-purple-400 flex items-center space-x-1.5 font-bold text-sm"
                 aria-label="Go back"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -441,10 +441,10 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
             
             {/* Logo/Title on Mobile */}
             <div className="lg:hidden flex items-center space-x-2 flex-1">
-              <div className="w-7 h-7 bg-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/40">
+              <div className="w-7 h-7 bg-purple-400 rounded-lg flex items-center justify-center shadow-lg shadow-purple-400/30">
                 <span className="text-base font-black italic text-white">V</span>
               </div>
-              <span className="text-base font-black tracking-tighter text-white">VPULSE</span>
+              <span className="text-base font-black tracking-tighter text-gray-900">VPULSE</span>
             </div>
             
             {/* Search - Desktop */}
@@ -460,7 +460,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search markets..."
-                  className="block w-full pl-8 pr-3 py-1.5 sm:py-2 border border-zinc-800 rounded-lg bg-zinc-900 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-xs sm:text-sm transition"
+                  className="block w-full pl-8 pr-3 py-1.5 sm:py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-xs sm:text-sm transition"
                 />
               </div>
             </div>
@@ -468,7 +468,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
             {/* Mobile Search Icon Button - Top Right */}
             <button
               onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-white transition-colors border border-zinc-700 hover:border-purple-500/50"
+              className="md:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 transition-colors border border-gray-300 hover:border-purple-400"
               aria-label="Search"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -518,7 +518,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search markets..."
-              className="block w-full pl-10 pr-10 py-2 border border-zinc-800 rounded-lg bg-zinc-800 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-sm transition"
+              className="block w-full pl-10 pr-10 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 text-sm transition"
               autoFocus
             />
             <button
@@ -553,7 +553,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
 
         {filteredMarkets.length === 0 && (
           <div className="text-center py-8 sm:py-12">
-            <p className="text-zinc-400 text-xs sm:text-sm">No markets found matching your criteria.</p>
+            <p className="text-gray-500 text-xs sm:text-sm">No markets found matching your criteria.</p>
           </div>
         )}
       </div>

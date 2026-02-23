@@ -24,7 +24,7 @@ const Notifications: React.FC<NotificationsProps> = ({ notifications, onClose })
             <div key={n.id} className="p-4 border-b border-zinc-800 hover:bg-zinc-800/50 transition cursor-pointer">
               <div className="flex items-start space-x-3">
                 <div className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${
-                  n.type === 'bet_win' ? 'bg-green-500' : n.type === 'bet_loss' ? 'bg-red-500' : 'bg-purple-500'
+                  n.type === 'bet_win' ? 'bg-green-500' : n.type === 'bet_loss' ? 'bg-red-500' : 'bg-purple-400'
                 }`}></div>
                 <div>
                   <p className="text-sm text-zinc-200 leading-snug">{n.message}</p>
