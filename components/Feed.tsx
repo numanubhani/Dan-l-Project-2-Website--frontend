@@ -43,8 +43,8 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
 
   return (
     <div 
-      className="relative w-full snap-start snap-always overflow-hidden bg-white flex items-center justify-center cursor-pointer"
-      style={{ height: cardHeight, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+      className="relative w-full snap-start snap-always overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+      style={{ height: cardHeight, maxHeight: cardHeight, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       onClick={togglePlayPause}
     >
       {/* Video element */}
@@ -81,12 +81,12 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
       <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
 
       {/* Right Side Interaction Bar */}
-      <div className="absolute right-2 bottom-40 lg:bottom-24 flex flex-col items-center space-y-2 sm:space-y-2.5 lg:space-y-3 z-[10]" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-2 bottom-24 lg:bottom-16 flex flex-col items-center space-y-3 sm:space-y-3.5 lg:space-y-4 z-[10]" onClick={(e) => e.stopPropagation()}>
         <div className="flex flex-col items-center group cursor-pointer">
-          <div className="relative mb-1.5">
-            <img src={video.creatorAvatar} className="w-10 h-10 lg:w-8 lg:h-8 rounded-full border-2 border-white" alt={video.creatorName} />
+          <div className="relative">
+            <img src={video.creatorAvatar} className="w-12 h-12 lg:w-10 lg:h-10 rounded-full border-2 border-white" alt={video.creatorName} />
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-500 rounded-full p-0.5">
-              <svg className="w-3 h-3 lg:w-2.5 lg:h-2.5" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              <svg className="w-3.5 h-3.5 lg:w-3 lg:h-3" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             </div>
           </div>
         </div>
@@ -95,24 +95,24 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
           onClick={() => setIsLiked(!isLiked)}
           className="flex flex-col items-center transition active:scale-125"
         >
-          <div className={`p-2 lg:p-1.5 rounded-full ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-700 bg-gray-100'} hover:bg-gray-200 transition`}>
-            <HeartIcon className="w-6 h-6 lg:w-5 lg:h-5" />
+          <div className={`p-2.5 lg:p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-700 bg-gray-100'} hover:bg-gray-200 transition`}>
+            <HeartIcon className="w-7 h-7 lg:w-6 lg:h-6" />
           </div>
-          <span className="text-[10px] font-bold mt-0.5 text-gray-700">{(video.likes / 1000).toFixed(1)}K</span>
+          <span className="text-xs font-bold mt-1 text-gray-700">{(video.likes / 1000).toFixed(1)}K</span>
         </button>
 
         <button className="flex flex-col items-center text-gray-700">
-          <div className="p-2 lg:p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-            <CommentIcon className="w-6 h-6 lg:w-5 lg:h-5" />
+          <div className="p-2.5 lg:p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+            <CommentIcon className="w-7 h-7 lg:w-6 lg:h-6" />
           </div>
-          <span className="text-[10px] font-bold mt-0.5">{video.comments}</span>
+          <span className="text-xs font-bold mt-1">{video.comments}</span>
         </button>
 
         <button className="flex flex-col items-center text-gray-700">
-          <div className="p-2 lg:p-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-            <ShareIcon className="w-6 h-6 lg:w-5 lg:h-5" />
+          <div className="p-2.5 lg:p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
+            <ShareIcon className="w-7 h-7 lg:w-6 lg:h-6" />
           </div>
-          <span className="text-[10px] font-bold mt-0.5">Share</span>
+          <span className="text-xs font-bold mt-1">Share</span>
         </button>
 
         {video.betEvent && (
@@ -120,21 +120,23 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
             onClick={() => setShowBetting(true)}
             className="flex flex-col items-center text-purple-600 mt-3 lg:mt-2"
           >
-            <div className="p-3 lg:p-2 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-600 transition">
-              <BetIcon className="w-8 h-8 lg:w-6 lg:h-6" />
+            <div className="p-3 lg:p-2.5 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-600 transition">
+              <svg className="w-6 h-6 lg:w-5 lg:h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+              </svg>
             </div>
-            <span className="text-[10px] font-black mt-1.5 bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-lg">BET LIVE</span>
+            <span className="text-[10px] font-black mt-1.5 bg-purple-100 text-purple-700 px-2 py-1 rounded-lg">BET LIVE</span>
           </button>
         )}
       </div>
 
       {/* Bottom Info Section */}
-      <div className="absolute left-4 bottom-36 lg:bottom-20 right-20 pointer-events-none">
-        <h4 className="text-white font-bold text-sm sm:text-base mb-0.5 drop-shadow-lg">@{video.creatorName}</h4>
-        <p className="text-white text-xs sm:text-sm line-clamp-2 mb-1.5 drop-shadow-lg">{video.title}</p>
-        <p className="text-white/90 text-xs sm:text-sm line-clamp-2 mb-1.5 drop-shadow-lg">{video.description}</p>
-        <div className="flex items-center space-x-2 text-white/80 text-[10px] sm:text-xs drop-shadow-lg">
-          <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      <div className="absolute left-4 bottom-24 lg:bottom-16 right-20 pointer-events-none">
+        <h4 className="text-white font-bold text-base sm:text-lg mb-1 drop-shadow-lg">@{video.creatorName}</h4>
+        <p className="text-white text-sm sm:text-base line-clamp-2 mb-2 drop-shadow-lg">{video.title}</p>
+        <p className="text-white/90 text-sm sm:text-base line-clamp-2 mb-2 drop-shadow-lg">{video.description}</p>
+        <div className="flex items-center space-x-2 text-white/80 text-xs sm:text-sm drop-shadow-lg">
+          <svg className="w-4 h-4 sm:w-4 sm:h-4 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <span className="truncate">Original audio - {video.creatorName}</span>
         </div>
       </div>
@@ -162,7 +164,11 @@ const Feed: React.FC = () => {
 
   const handleScroll = () => {
     if (containerRef.current) {
-      const cardHeight = window.innerWidth < 1024 ? window.innerHeight - 55 : window.innerHeight;
+      const topNavbarHeight = 56; // Top navbar height
+      const bottomNavbarHeight = 55; // Bottom navbar height
+      const cardHeight = window.innerWidth < 1024 
+        ? window.innerHeight - topNavbarHeight - bottomNavbarHeight 
+        : window.innerHeight;
       const scrollTop = containerRef.current.scrollTop;
       const index = Math.round(scrollTop / cardHeight);
       setActiveIndex(index);
@@ -171,16 +177,25 @@ const Feed: React.FC = () => {
 
   const [containerHeight, setContainerHeight] = useState('100vh');
   const [cardHeight, setCardHeight] = useState('100vh');
+  const [topOffset, setTopOffset] = useState('0px');
 
   useEffect(() => {
     const updateHeight = () => {
       if (window.innerWidth < 1024) {
-        // Account for bottom navbar (approximately 55px)
-        setContainerHeight('calc(100vh - 55px)');
-        setCardHeight('calc(100vh - 55px)');
+        // Account for top navbar (approximately 56px) and bottom navbar (approximately 55px)
+        const topNavbarHeight = 56;
+        const bottomNavbarHeight = 55;
+        const totalNavbarHeight = topNavbarHeight + bottomNavbarHeight;
+        // Container should fill the space between navbars - positioned below top navbar
+        // Height accounts for both navbars, so content won't hide behind them
+        setContainerHeight(`calc(100vh - ${totalNavbarHeight}px)`);
+        // Each card should fill the full container height exactly
+        setCardHeight(`calc(100vh - ${totalNavbarHeight}px)`);
+        setTopOffset(`${topNavbarHeight}px`);
       } else {
         setContainerHeight('100vh');
         setCardHeight('100vh');
+        setTopOffset('0px');
       }
     };
     updateHeight();
@@ -194,9 +209,9 @@ const Feed: React.FC = () => {
   const [activeNavItem, setActiveNavItem] = useState('For You');
 
   return (
-    <div className="w-full min-h-screen bg-white relative">
+    <div className="w-full min-h-screen bg-black relative">
       {/* Sticky Top Navbar */}
-      <div className="sticky top-0 z-[9998] bg-white border-b border-gray-200 lg:hidden">
+      <div className="fixed top-0 left-0 right-0 z-[9998] bg-white border-b border-gray-200 lg:hidden">
         <div className="relative flex items-center">
           {/* Live Icon - Index 0 (Fixed) */}
           <button
@@ -282,9 +297,11 @@ const Feed: React.FC = () => {
       <div 
         ref={containerRef}
         onScroll={handleScroll}
-        className="w-full overflow-y-scroll snap-y snap-mandatory bg-white scrollbar-hide lg:h-screen pb-20 lg:pb-0"
+        className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide lg:h-screen"
         style={{ 
           height: containerHeight,
+          maxHeight: containerHeight,
+          marginTop: topOffset,
           scrollBehavior: 'smooth',
           scrollSnapType: 'y mandatory',
           scrollSnapStop: 'always',
@@ -297,7 +314,7 @@ const Feed: React.FC = () => {
         {videosToShow.map((video, i) => (
           <VideoCard key={video.id} video={video} isActive={activeIndex === i} cardHeight={cardHeight} />
         ))}
-        <div className="w-full flex items-center justify-center bg-gray-50 snap-start pb-20 lg:pb-0" style={{ height: cardHeight }}>
+        <div className="w-full flex items-center justify-center bg-gray-50 snap-start" style={{ height: cardHeight, minHeight: cardHeight }}>
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 font-medium">Loading more epic moments...</p>

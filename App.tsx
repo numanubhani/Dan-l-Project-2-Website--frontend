@@ -45,7 +45,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
       {/* Sidebar - Desktop */}
-      <nav className={`hidden lg:flex flex-col w-72 h-screen border-r border-gray-200 bg-white p-6 ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`hidden lg:flex flex-col w-60 h-screen border-r border-gray-200 bg-white p-6 ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/40">
