@@ -360,12 +360,16 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange }) => {
             <button className="hidden sm:block px-3 sm:px-4 py-2 rounded-lg text-sm font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
               How it works
             </button>
-            <button className="px-3 sm:px-4 py-2 rounded-lg text-sm font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
-              Login
-            </button>
-            <Button variant="primary" className="px-4 sm:px-6 py-2 text-xs sm:text-sm">
-              Sign Up
-            </Button>
+            {!user && (
+              <>
+                <button className="px-3 sm:px-4 py-2 rounded-lg text-sm font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                  Login
+                </button>
+                <Button variant="primary" className="px-4 sm:px-6 py-2 text-xs sm:text-sm">
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -402,9 +406,10 @@ const MarketCardSkeleton: React.FC = () => {
 // Main Prediction Market Component
 interface PredictionMarketProps {
   onBack?: () => void;
+  user?: any;
 }
 
-const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
+const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack, user }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [isLoading, setIsLoading] = useState(false);
@@ -493,12 +498,16 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack }) => {
               <button className="hidden sm:block px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
                 How it works
               </button>
-              <button className="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
-                Login
-              </button>
-              <Button variant="primary" className="px-3 sm:px-4 py-1.5 text-xs">
-                Sign Up
-              </Button>
+              {!user && (
+                <>
+                  <button className="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
+                    Login
+                  </button>
+                  <Button variant="primary" className="px-3 sm:px-4 py-1.5 text-xs">
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

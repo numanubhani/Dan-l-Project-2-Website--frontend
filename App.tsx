@@ -12,13 +12,21 @@ import Notifications from './components/Notifications';
 import CameraView from './components/CameraView';
 import Shop from './components/Shop';
 import Profile from './components/Profile';
-import { MOCK_USER } from './constants';
-import { UserRole, Notification } from './types';
+import Login from './components/Login';
+import VideoUpload from './components/VideoUpload';
+import { api, User as ApiUser, getAuthToken, convertApiUserToUser } from './services/api';
+import { UserRole, Notification, User } from './types';
+import { ToastProvider } from './contexts/ToastContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useToast } from './contexts/ToastContext';
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(MOCK_USER);
+  const { showSuccess, showError } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -27,6 +35,52 @@ const AppContent: React.FC = () => {
     { id: '2', message: 'New video from ExtremeSports: "Death Dive"', type: 'new_video', timestamp: Date.now() - 7200000 },
     { id: '3', message: 'Bet lost: "ChefMaster Challenge"', type: 'bet_loss', timestamp: Date.now() - 86400000 },
   ]);
+
+  // Load user on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      const token = getAuthToken();
+      if (token) {
+        try {
+          const apiUser = await api.getCurrentUser();
+          setUser(convertApiUserToUser(apiUser));
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error('Failed to load user:', error);
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      setIsLoading(false);
+    };
+    loadUser();
+  }, []);
+
+  const handleLoginSuccess = async () => {
+    try {
+      const apiUser = await api.getCurrentUser();
+      setUser(convertApiUserToUser(apiUser));
+      setIsAuthenticated(true);
+      // Toast is already shown in Login/LoginModal components
+    } catch (error) {
+      console.error('Failed to load user after login:', error);
+      showError('Failed to load user data');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+      showSuccess('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      showError('Error during logout');
+    }
+    setUser(null);
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
 
   // Check if device is mobile
   const isMobile = () => {
@@ -57,8 +111,35 @@ const AppContent: React.FC = () => {
 
   const activeTab = getActiveTab();
 
+  // Show login if not authenticated
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/40 mx-auto mb-4">
+            <span className="text-3xl font-black italic text-white">V</span>
+          </div>
+          <p className="text-gray-600 font-bold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !user) {
+    return (
+      <Routes>
+        <Route path="*" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+      </Routes>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
+    <AuthProvider
+      initialUser={user}
+      initialIsAuthenticated={isAuthenticated}
+      onLoginSuccess={handleLoginSuccess}
+    >
+      <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
       {/* Sidebar - Desktop */}
       <nav className={`hidden lg:flex flex-col w-60 h-screen border-r border-gray-200 bg-white ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 pb-4">
@@ -147,7 +228,10 @@ const AppContent: React.FC = () => {
               />
             )}
           </div>
-          <button className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200">
+          <button 
+            onClick={handleLogout}
+            className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             <span>Logout</span>
           </button>
@@ -157,6 +241,7 @@ const AppContent: React.FC = () => {
       {/* Main Content Area */}
       <main className={`flex-1 relative h-screen overflow-y-auto overflow-x-hidden scrollbar-hide transition-all duration-300 bg-white`}>
         <Routes>
+          <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/home" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/watch/:id" element={<VideoPlayer />} />
@@ -164,12 +249,13 @@ const AppContent: React.FC = () => {
           <Route path="/reel" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/explore" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/shop" element={<Shop />} />
-          <Route path="/market" element={<PredictionMarket onBack={() => navigate('/')} />} />
-          <Route path="/polymarket" element={<PredictionMarket onBack={() => navigate('/')} />} />
+          <Route path="/market" element={<PredictionMarket onBack={() => navigate('/')} user={user} />} />
+          <Route path="/polymarket" element={<PredictionMarket onBack={() => navigate('/')} user={user} />} />
           <Route path="/creator" element={<CreatorDashboard user={user} />} />
           <Route path="/live" element={<LiveStream user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/create" element={<CameraView />} />
-          <Route path="/profile" element={<Profile user={user} />} />
+          <Route path="/upload" element={<VideoUpload user={user} />} />
+          <Route path="/profile" element={<Profile user={user} onUserUpdate={setUser} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="*" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
         </Routes>
       </main>
@@ -219,14 +305,17 @@ const AppContent: React.FC = () => {
         </div>
       </nav>
     </div>
+    </AuthProvider>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ToastProvider>
   );
 };
 

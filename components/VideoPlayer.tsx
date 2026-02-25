@@ -1,7 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { MOCK_VIDEOS } from '../constants';
-import { Video } from '../types';
+import { Video, BetMarker } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { api } from '../services/api';
+import BettingPopup from './BettingPopup';
 
 interface VideoPlayerProps {
   onToggleSidebar?: () => void;
@@ -10,7 +14,10 @@ interface VideoPlayerProps {
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen = false }) => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { requireAuth, user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [video, setVideo] = useState<Video | null>(null);
@@ -29,15 +36,96 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   const [likeCount, setLikeCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [activeBetMarker, setActiveBetMarker] = useState<BetMarker | null>(null);
+  const [shownMarkers, setShownMarkers] = useState<Set<string>>(new Set());
+  const [previewMarkerIndex, setPreviewMarkerIndex] = useState(0);
+  const isPreviewMode = searchParams.get('preview') === 'true';
 
   useEffect(() => {
-    const foundVideo = MOCK_VIDEOS.find(v => v.id === id);
-    if (foundVideo) {
-      setVideo(foundVideo);
-    } else {
-      navigate('/');
+    const loadVideo = async () => {
+      if (!id) {
+        navigate('/');
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        // Try to fetch from backend first
+        try {
+          const videoData = await api.getVideo(id, isPreviewMode);
+          
+          // Convert backend video format to frontend format
+          const convertedVideo: Video = {
+            id: videoData.id.toString(),
+            title: videoData.title,
+            description: videoData.description || '',
+            url: videoData.video_file_url || videoData.video_url || '',
+            thumbnail: videoData.thumbnail_url || videoData.thumbnail || '',
+            creator: {
+              id: videoData.creator.toString(),
+              name: videoData.creator_name || 'Unknown',
+              avatar: videoData.creator_avatar || '',
+            },
+            views: videoData.views || 0,
+            likes: videoData.likes || 0,
+            comments: videoData.comments || 0,
+            type: videoData.video_type === 'short' ? 'short' : videoData.video_type === 'live' ? 'live' : 'long',
+            isLive: videoData.is_live || false,
+            betMarkers: (videoData.bet_markers || []).map((marker: any) => ({
+              id: marker.id,
+              timestamp: marker.timestamp,
+              question: marker.question,
+              options: marker.options,
+              totalPool: marker.total_pool || 0,
+              participants: marker.participants || 0,
+            })),
+          };
+          
+          setVideo(convertedVideo);
+        } catch (apiError) {
+          // If API fails, try MOCK_VIDEOS as fallback
+          const foundVideo = MOCK_VIDEOS.find(v => v.id === id);
+          if (foundVideo) {
+            setVideo(foundVideo);
+          } else {
+            showError('Video not found');
+            navigate('/');
+          }
+        }
+      } catch (error: any) {
+        showError(error.message || 'Failed to load video');
+        navigate('/');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadVideo();
+  }, [id, navigate, showError]);
+
+  // In preview mode, automatically show bet markers sequentially
+  useEffect(() => {
+    if (isPreviewMode && video && video.betMarkers && video.betMarkers.length > 0) {
+      // Auto-play video in preview mode
+      if (videoRef.current && !isPlaying) {
+        videoRef.current.play().catch(() => {
+          // Auto-play might be blocked
+        });
+      }
+      
+      // Show first bet marker after a short delay
+      const timer = setTimeout(() => {
+        if (video.betMarkers && video.betMarkers.length > 0) {
+          videoRef.current?.pause();
+          setIsPlaying(false);
+          setActiveBetMarker(video.betMarkers[0]);
+          setPreviewMarkerIndex(0);
+        }
+      }, 2000); // Show first marker after 2 seconds
+
+      return () => clearTimeout(timer);
     }
-  }, [id, navigate]);
+  }, [isPreviewMode, video, isPlaying]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -48,7 +136,26 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
     videoElement.playbackRate = playbackRate;
     setLikeCount(video.likes || 0);
 
-    const updateTime = () => setCurrentTime(videoElement.currentTime);
+    const updateTime = () => {
+      const time = videoElement.currentTime;
+      setCurrentTime(time);
+      
+      // Check for bet markers (only in normal mode, not preview mode)
+      if (!isPreviewMode && video.betMarkers && video.betMarkers.length > 0 && !videoElement.paused) {
+        const marker = video.betMarkers.find(m => {
+          const timeDiff = Math.abs(time - m.timestamp);
+          return timeDiff <= 0.5 && !shownMarkers.has(m.id); // Within 0.5 seconds and not shown yet
+        });
+        
+        if (marker) {
+          // Pause video and show betting popup
+          videoElement.pause();
+          setIsPlaying(false);
+          setActiveBetMarker(marker);
+          setShownMarkers(prev => new Set(prev).add(marker.id));
+        }
+      }
+    };
     const updateDuration = () => {
       setDuration(videoElement.duration);
       setIsLoading(false);
@@ -89,7 +196,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
       videoElement.removeEventListener('canplay', handleCanPlay);
       videoElement.removeEventListener('error', handleError);
     };
-  }, [video, volume, playbackRate]);
+  }, [video, volume, playbackRate, shownMarkers]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -247,12 +354,18 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   };
 
   const handleSubscribe = () => {
-    setIsSubscribed(!isSubscribed);
+    requireAuth(() => {
+      setIsSubscribed(!isSubscribed);
+      showSuccess(isSubscribed ? 'Unsubscribed' : 'Subscribed!');
+    }, 'subscribe to this channel');
   };
 
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    requireAuth(() => {
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      showSuccess(isLiked ? 'Removed from likes' : 'Liked!');
+    }, 'like this video');
   };
 
   const handleShare = () => {
@@ -339,8 +452,64 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
   const relatedVideos = MOCK_VIDEOS.filter(v => v.id !== id).slice(0, 10);
 
+  const handleCloseBettingPopup = () => {
+    if (isPreviewMode && video && video.betMarkers) {
+      // In preview mode, show next bet marker
+      const nextIndex = previewMarkerIndex + 1;
+      if (nextIndex < video.betMarkers.length) {
+        setPreviewMarkerIndex(nextIndex);
+        setActiveBetMarker(video.betMarkers[nextIndex]);
+        // Seek to the next marker's timestamp
+        if (videoRef.current) {
+          videoRef.current.currentTime = video.betMarkers[nextIndex].timestamp;
+        }
+      } else {
+        // All markers shown, close and resume
+        setActiveBetMarker(null);
+        if (videoRef.current) {
+          videoRef.current.play();
+        }
+      }
+    } else {
+      setActiveBetMarker(null);
+      // Resume video playback if user wants
+      if (videoRef.current && !isPlaying) {
+        // Video will resume when user clicks play
+      }
+    }
+  };
+
+  const handleBetPlaced = () => {
+    // Bet was placed, popup will close automatically
+    // Could add logic here to update UI or show success
+  };
+
   return (
     <div className="w-full min-h-screen bg-gray-50 flex flex-col">
+      {/* Betting Popup */}
+      {activeBetMarker && (
+        <BettingPopup
+          betMarker={activeBetMarker}
+          onClose={handleCloseBettingPopup}
+          onBetPlaced={isPreviewMode ? handleCloseBettingPopup : handleBetPlaced}
+        />
+      )}
+      
+      {/* Preview Mode Indicator */}
+      {isPreviewMode && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg z-[10001] flex items-center space-x-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+          </svg>
+          <span className="font-bold text-sm">Preview Mode - Viewing Bet Popups</span>
+          {video && video.betMarkers && (
+            <span className="text-xs bg-white/20 px-2 py-1 rounded">
+              {previewMarkerIndex + 1} / {video.betMarkers.length}
+            </span>
+          )}
+        </div>
+      )}
       {/* Top Navigation Bar - Desktop */}
       <div className="hidden lg:flex sticky top-0 z-50 bg-white border-b border-gray-200 h-14 items-center px-6 shadow-sm">
         <div className="flex items-center justify-between w-full max-w-[1920px] mx-auto">

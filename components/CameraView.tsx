@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 const CameraView: React.FC = () => {
   const navigate = useNavigate();
@@ -71,11 +73,21 @@ const CameraView: React.FC = () => {
     alert('Video recording started! (Implementation needed)');
   };
 
+  const { requireAuth } = useAuth();
+  
   const handleLive = () => {
-    navigate('/live');
+    requireAuth(() => {
+      navigate('/live');
+    }, 'go live');
   };
 
   const handleUpload = () => {
+    requireAuth(() => {
+      navigate('/upload');
+    }, 'upload a video');
+  };
+
+  const handleFileUpload = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'video/*,image/*';

@@ -5,6 +5,8 @@ import { MOCK_VIDEOS, MOCK_USER } from '../constants';
 import { HeartIcon, CommentIcon, ShareIcon, BetIcon } from './Icons';
 import BettingOverlay from './BettingOverlay';
 import { Video, User } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface FeedProps {
   user?: User;
@@ -13,6 +15,8 @@ interface FeedProps {
 }
 
 const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string }> = ({ video, isActive, cardHeight }) => {
+  const { requireAuth } = useAuth();
+  const { showSuccess } = useToast();
   const [showBetting, setShowBetting] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -99,7 +103,10 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
         </div>
 
         <button 
-          onClick={() => setIsLiked(!isLiked)}
+          onClick={() => requireAuth(() => {
+            setIsLiked(!isLiked);
+            showSuccess(isLiked ? 'Removed from likes' : 'Liked!');
+          }, 'like this video')}
           className="flex flex-col items-center transition active:scale-125"
         >
           <div className={`p-2.5 lg:p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-700 bg-gray-100'} hover:bg-gray-200 transition`}>
@@ -108,7 +115,12 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
           <span className="text-xs font-bold mt-1 text-gray-700">{(video.likes / 1000).toFixed(1)}K</span>
         </button>
 
-        <button className="flex flex-col items-center text-gray-700">
+        <button 
+          onClick={() => requireAuth(() => {
+            showSuccess('Comment feature coming soon!');
+          }, 'comment on this video')}
+          className="flex flex-col items-center text-gray-700"
+        >
           <div className="p-2.5 lg:p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
             <CommentIcon className="w-7 h-7 lg:w-6 lg:h-6" />
           </div>
@@ -124,7 +136,9 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
 
         {video.betEvent && (
           <button 
-            onClick={() => setShowBetting(true)}
+            onClick={() => requireAuth(() => {
+              setShowBetting(true);
+            }, 'place a bet')}
             className="flex flex-col items-center text-purple-600 mt-3 lg:mt-2"
           >
             <div className="p-3 lg:p-2.5 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-600 transition">

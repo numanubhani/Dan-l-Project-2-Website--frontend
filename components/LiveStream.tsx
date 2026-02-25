@@ -3,6 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
 import { User } from '../types';
 import { BetIcon, RadioIcon } from './Icons';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 
 interface LiveStreamProps {
   user: User;
@@ -11,6 +13,8 @@ interface LiveStreamProps {
 }
 
 const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarOpen }) => {
+  const { requireAuth } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [isLive, setIsLive] = useState(false);
   const [isAiEnabled, setIsAiEnabled] = useState(false);
   const [showToolbox, setShowToolbox] = useState(false);
@@ -82,14 +86,18 @@ const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarO
 
   const toggleLive = () => {
     if (!isLive) {
-      setIsLive(true);
-      setViewers(Math.floor(Math.random() * 500) + 100);
-      setActiveBets(12);
+      requireAuth(() => {
+        setIsLive(true);
+        setViewers(Math.floor(Math.random() * 500) + 100);
+        setActiveBets(12);
+        showSuccess('You are now live!');
+      }, 'go live');
     } else {
       setIsLive(false);
       setViewers(0);
       setActiveBets(0);
       if (sessionRef.current) sessionRef.current.close();
+      showSuccess('Stream ended');
     }
   };
 

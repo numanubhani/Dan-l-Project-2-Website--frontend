@@ -22,6 +22,15 @@ export interface BetEvent {
   expiresAt: number; // timestamp
 }
 
+export interface BetMarker {
+  id: string;
+  timestamp: number; // in seconds
+  question: string;
+  options: { id: string; text: string; odds: number }[];
+  totalPool: number;
+  participants: number;
+}
+
 export interface Video {
   id: string;
   creatorId: string;
@@ -35,6 +44,7 @@ export interface Video {
   likes: number;
   comments: number;
   betEvent?: BetEvent;
+  betMarkers?: BetMarker[]; // Betting markers at specific timestamps
   type: 'short' | 'long' | 'live';
 }
 

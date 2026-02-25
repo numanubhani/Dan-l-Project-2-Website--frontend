@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Video, UserRole, User } from './types';
+import { Video, UserRole, User, BetMarker } from './types';
 
 export const COLORS = {
   primary: '#8b5cf6', // Purple-500
@@ -42,7 +42,31 @@ export const MOCK_VIDEOS: Video[] = [
       totalPool: 15400,
       participants: 1240,
       expiresAt: Date.now() + 3600000,
-    }
+    },
+    betMarkers: [
+      {
+        id: 'bm1',
+        timestamp: 10, // 10 seconds into video
+        question: 'Will he attempt the backflip?',
+        options: [
+          { id: 'yes', text: 'Yes', odds: 1.5 },
+          { id: 'no', text: 'No', odds: 2.5 }
+        ],
+        totalPool: 5000,
+        participants: 320,
+      },
+      {
+        id: 'bm2',
+        timestamp: 30, // 30 seconds into video
+        question: 'Will he land it on the first try?',
+        options: [
+          { id: 'yes', text: 'First Try', odds: 3.0 },
+          { id: 'no', text: 'Multiple Attempts', odds: 1.3 }
+        ],
+        totalPool: 8200,
+        participants: 650,
+      },
+    ] as BetMarker[]
   },
   {
     id: 'v2',
