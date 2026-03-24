@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { useToast } from '../contexts/ToastContext';
-import { api } from '../services/api';
+import { api, API_BASE_URL } from '../services/api';
 
 interface VideoUploadProps {
-  user: User;
+  user: User | null;
 }
 
 interface BetMarker {
@@ -18,9 +18,25 @@ interface BetMarker {
 }
 
 const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
+  if (!user) {
+    return (
+      <div className="w-full min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium mb-4">Please log in to upload videos</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -38,6 +54,8 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
   const [videoTitle, setVideoTitle] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
   const [videoType, setVideoType] = useState<'short' | 'long'>('short');
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (videoPreviewRef.current && videoUrl) {
@@ -65,6 +83,24 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
         showError('Please select a video file');
       }
     }
+  };
+
+  const handleThumbnailSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showError('Please select an image file for the thumbnail');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Thumbnail must be smaller than 5MB');
+      return;
+    }
+    setThumbnailFile(file);
+    const url = URL.createObjectURL(file);
+    setThumbnailPreview(url);
+    showSuccess('Thumbnail selected!');
   };
 
   const handleUpload = async () => {
@@ -102,6 +138,9 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
       formData.append('video_file', selectedFile);
       formData.append('video_type', videoType);
       formData.append('is_live', 'false');
+      if (thumbnailFile) {
+        formData.append('thumbnail', thumbnailFile);
+      }
       if (betMarkersForAPI.length > 0) {
         formData.append('bet_markers', JSON.stringify(betMarkersForAPI));
       }
@@ -133,7 +172,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
       });
 
       const token = localStorage.getItem('auth_token');
-      xhr.open('POST', 'http://localhost:8000/api/videos/upload/');
+      xhr.open('POST', `${API_BASE_URL}/videos/upload/`);
       xhr.setRequestHeader('Authorization', `Token ${token}`);
       xhr.send(formData);
 
@@ -333,6 +372,53 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
                       Video (Long)
                     </button>
                   </div>
+                </div>
+
+                {/* Thumbnail Upload */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Thumbnail (optional)</label>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-24 h-16 rounded-lg bg-gray-200 overflow-hidden flex items-center justify-center">
+                      {thumbnailPreview ? (
+                        <img
+                          src={thumbnailPreview}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xs text-gray-500 text-center px-2">No thumbnail</span>
+                      )}
+                    </div>
+                    <div className="space-x-2">
+                      <input
+                        ref={thumbnailInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleThumbnailSelect}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => thumbnailInputRef.current?.click()}
+                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-xs font-bold text-gray-900 transition"
+                      >
+                        {thumbnailFile ? 'Change Thumbnail' : 'Upload Thumbnail'}
+                      </button>
+                      {thumbnailFile && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setThumbnailFile(null);
+                            setThumbnailPreview(null);
+                          }}
+                          className="px-3 py-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-bold text-gray-600 transition"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">Recommended: 9:16 for Reels or 16:9 for Videos, up to 5MB.</p>
                 </div>
               </div>
             )}

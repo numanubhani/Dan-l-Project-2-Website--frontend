@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_VIDEOS } from '../constants';
 import { Video } from '../types';
+import { api } from '../services/api';
 
 interface HomeProps {
   user?: any;
@@ -9,13 +9,56 @@ interface HomeProps {
   sidebarOpen?: boolean;
 }
 
+const mapApiVideoToVideo = (v: any): Video => ({
+  id: String(v.id),
+  creatorId: String(v.creator ?? ''),
+  creatorName: v.creator_name || 'Creator',
+  creatorAvatar: v.creator_avatar || '',
+  title: v.title || '',
+  description: v.description || '',
+  url: v.video_file_url || v.video_url || '',
+  thumbnail: v.thumbnail_url || v.thumbnail || '',
+  views: v.views || 0,
+  likes: v.likes || 0,
+  comments: v.comments || 0,
+  type: (v.video_type === 'short' ? 'short' : v.video_type === 'live' ? 'live' : 'long') as 'short' | 'long' | 'live',
+  betMarkers: (v.bet_markers || []).map((m: any) => ({
+    id: String(m.id),
+    timestamp: m.timestamp,
+    question: m.question,
+    options: (m.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
+    totalPool: m.total_pool || 0,
+    participants: m.participants || 0,
+  })),
+  ...(v.bet_event && {
+    betEvent: {
+      id: String(v.bet_event.id),
+      question: v.bet_event.question,
+      options: (v.bet_event.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
+      totalPool: v.bet_event.totalPool ?? 0,
+      participants: v.bet_event.participants ?? 0,
+      expiresAt: v.bet_event.expiresAt ?? 0,
+    },
+  }),
+});
+
 const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
   const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Separate shorts from regular videos
-  const shorts = MOCK_VIDEOS.filter(video => video.type === 'short');
-  const regularVideos = MOCK_VIDEOS.filter(video => video.type === 'long' || video.type === 'live');
+  useEffect(() => {
+    api.getFeedVideos()
+      .then((data: any[]) => {
+        setVideos(data.map(mapApiVideoToVideo));
+      })
+      .catch(() => setVideos([]))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const shorts = videos.filter(video => video.type === 'short');
+  const regularVideos = videos.filter(video => video.type === 'long' || video.type === 'live');
 
   const handleVideoClick = (video: Video) => {
     setSelectedVideo(video);
@@ -51,18 +94,31 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
     <div className="w-full min-h-screen bg-white">
       {/* Desktop Top Bar - YouTube Style */}
       <div className="hidden lg:flex sticky top-0 z-[9998] bg-white border-b border-gray-200 h-14 items-center px-4 w-full">
-        {/* Left Section */}
-        <div className="flex items-center space-x-2 flex-shrink-0">
+        {/* Left Section - Hamburger + Logo when sidebar is closed */}
+        <div className="flex items-center space-x-3 flex-shrink-0">
           {!sidebarOpen && (
-            <button
-              onClick={onToggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              aria-label="Guide"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            <>
+              <button
+                onClick={onToggleSidebar}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+                aria-label="Open sidebar"
+              >
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 hover:opacity-80 transition"
+              >
+                <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                  <span className="text-xl font-black italic text-white">V</span>
+                </div>
+                <span className="text-xl font-black tracking-tight text-gray-900 hidden md:inline">
+                  VPULSE
+                </span>
+              </button>
+            </>
           )}
         </div>
 
@@ -119,18 +175,37 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             className="p-0.5 rounded-full hover:ring-2 hover:ring-gray-200 transition"
             aria-label="Account menu"
           >
-            <img
-              src={user?.avatar || 'https://picsum.photos/200'}
-              alt="Avatar"
-              className="w-9 h-9 rounded-full"
-            />
+            {user ? (
+              <img
+                src={user.avatar}
+                alt="Avatar"
+                className="w-9 h-9 rounded-full"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
           </button>
         </div>
       </div>
 
       {/* Main Content - YouTube Style */}
       <div className="pt-14 lg:pt-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-6 ${sidebarOpen ? 'max-w-7xl' : 'max-w-full'}`}>
+          {/* Loading / Empty States */}
+          {isLoading && (
+            <div className="py-16 text-center text-gray-500 font-medium">
+              Loading videos...
+            </div>
+          )}
+          {!isLoading && videos.length === 0 && (
+            <div className="py-16 text-center text-gray-500 font-medium">
+              No videos yet. Be the first to upload!
+            </div>
+          )}
           {/* Shorts Section */}
           {shorts.length > 0 && (
             <div className="mb-8">

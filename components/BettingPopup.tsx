@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BetMarker } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { api } from '../services/api';
 
 interface BettingPopupProps {
   betMarker: BetMarker;
@@ -28,15 +29,22 @@ const BettingPopup: React.FC<BettingPopupProps> = ({ betMarker, onClose, onBetPl
       return;
     }
 
-    requireAuth(() => {
+    requireAuth(async () => {
       setIsPlacingBet(true);
-      // Simulate API call
-      setTimeout(() => {
-        setIsPlacingBet(false);
+      try {
+        await api.placeMarkerBet(
+          String(betMarker.id),
+          String(selectedOption),
+          amount
+        );
         showSuccess(`Bet placed: $${amount} on "${betMarker.options.find(o => o.id === selectedOption)?.text}"`);
         onBetPlaced?.();
         onClose();
-      }, 1000);
+      } catch (err: any) {
+        showError(err.message || 'Failed to place bet');
+      } finally {
+        setIsPlacingBet(false);
+      }
     }, 'place a bet');
   };
 

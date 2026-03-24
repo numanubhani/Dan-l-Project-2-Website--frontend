@@ -13,7 +13,22 @@ const data = [
   { name: 'Sun', earnings: 349, bets: 4300 },
 ];
 
-const CreatorDashboard: React.FC<{ user: User }> = ({ user }) => {
+const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
+  if (!user) {
+    return (
+      <div className="w-full min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium mb-4">Please log in to access creator dashboard</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
   const [showUpload, setShowUpload] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 

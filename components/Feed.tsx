@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_VIDEOS, MOCK_USER } from '../constants';
@@ -7,6 +6,7 @@ import BettingOverlay from './BettingOverlay';
 import { Video, User } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { api } from '../services/api';
 
 interface FeedProps {
   user?: User;
@@ -14,7 +14,13 @@ interface FeedProps {
   sidebarOpen?: boolean;
 }
 
-const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string }> = ({ video, isActive, cardHeight }) => {
+const VideoCard: React.FC<{
+  video: Video;
+  isActive: boolean;
+  cardHeight: string;
+  user: User;
+  onPlaceEventBet: (eventId: string, optionId: string, amount: number) => Promise<void>;
+}> = ({ video, isActive, cardHeight, user, onPlaceEventBet }) => {
   const { requireAuth } = useAuth();
   const { showSuccess } = useToast();
   const [showBetting, setShowBetting] = useState(false);
@@ -166,11 +172,15 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
         <div onClick={(e) => e.stopPropagation()}>
           <BettingOverlay 
             event={video.betEvent}
-            user={MOCK_USER}
+            user={user}
             onClose={() => setShowBetting(false)}
-            onPlaceBet={(opt, amt) => {
-              alert(`Bet placed: ${amt} coins on ${opt}`);
-              setShowBetting(false);
+            onPlaceBet={async (optionId, amt) => {
+              try {
+                await onPlaceEventBet(String(video.betEvent!.id), optionId, amt);
+                setShowBetting(false);
+              } catch (_) {
+                /* error toast shown by parent */
+              }
             }}
           />
         </div>
@@ -179,8 +189,10 @@ const VideoCard: React.FC<{ video: Video; isActive: boolean; cardHeight: string 
   );
 };
 
-const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarOpen = true }) => {
+const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
+  const displayUser = user || MOCK_USER;
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -227,8 +239,49 @@ const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarO
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // Get first 6 videos
-  const videosToShow = MOCK_VIDEOS.slice(0, 6);
+  // Load feed from API when available, otherwise use mock
+  const [feedVideos, setFeedVideos] = useState<Video[] | null>(null);
+  useEffect(() => {
+    api.getFeedVideos()
+      .then((data: any[]) => {
+        const mapped: Video[] = data.map((v: any) => ({
+          id: String(v.id),
+          creatorId: String(v.creator ?? ''),
+          creatorName: v.creator_name || 'Creator',
+          creatorAvatar: v.creator_avatar || '',
+          title: v.title || '',
+          description: v.description || '',
+          url: v.video_file_url || v.video_url || '',
+          thumbnail: v.thumbnail_url || v.thumbnail || '',
+          views: v.views || 0,
+          likes: v.likes || 0,
+          comments: v.comments || 0,
+          type: (v.video_type === 'short' ? 'short' : v.video_type === 'live' ? 'live' : 'long') as 'short' | 'long' | 'live',
+          betMarkers: (v.bet_markers || []).map((m: any) => ({
+            id: String(m.id),
+            timestamp: m.timestamp,
+            question: m.question,
+            options: (m.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
+            totalPool: m.total_pool || 0,
+            participants: m.participants || 0,
+          })),
+          ...(v.bet_event && {
+            betEvent: {
+              id: String(v.bet_event.id),
+              question: v.bet_event.question,
+              options: (v.bet_event.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
+              totalPool: v.bet_event.totalPool ?? 0,
+              participants: v.bet_event.participants ?? 0,
+              expiresAt: v.bet_event.expiresAt ?? Date.now() + 60000,
+            },
+          }),
+        }));
+        setFeedVideos(mapped);
+      })
+      .catch(() => setFeedVideos(null));
+  }, []);
+
+  const videosToShow = (feedVideos && feedVideos.length > 0) ? feedVideos.slice(0, 6) : MOCK_VIDEOS.slice(0, 6);
 
   const [activeNavItem, setActiveNavItem] = useState('For You');
 
@@ -236,19 +289,31 @@ const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarO
     <div className="w-full min-h-screen bg-black relative">
       {/* Desktop Top Bar - YouTube Style */}
       <div className="hidden lg:flex sticky top-0 z-[9998] bg-white border-b border-gray-200 h-14 items-center px-4 w-full">
-        {/* Left Section */}
-        <div className="flex items-center space-x-2 flex-shrink-0">
-          {/* Guide/Hamburger Menu Button - Only show when sidebar is closed */}
+        {/* Left Section - Hamburger + Logo when sidebar is closed */}
+        <div className="flex items-center space-x-3 flex-shrink-0">
           {!sidebarOpen && (
-            <button
-              onClick={onToggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              aria-label="Guide"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            <>
+              <button
+                onClick={onToggleSidebar}
+                className="p-2 rounded-full hover:bg-gray-100 transition"
+                aria-label="Open sidebar"
+              >
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 hover:opacity-80 transition"
+              >
+                <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                  <span className="text-xl font-black italic text-white">V</span>
+                </div>
+                <span className="text-xl font-black tracking-tight text-gray-900 hidden xl:inline">
+                  VPULSE
+                </span>
+              </button>
+            </>
           )}
         </div>
 
@@ -321,11 +386,19 @@ const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarO
             className="p-0.5 rounded-full hover:ring-2 hover:ring-gray-200 transition"
             aria-label="Account menu"
           >
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              className="w-9 h-9 rounded-full"
-            />
+            {user ? (
+              <img
+                src={user.avatar}
+                alt="Avatar"
+                className="w-9 h-9 rounded-full"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
           </button>
         </div>
       </div>
@@ -432,7 +505,21 @@ const Feed: React.FC<FeedProps> = ({ user = MOCK_USER, onToggleSidebar, sidebarO
         }}
       >
         {videosToShow.map((video, i) => (
-          <VideoCard key={video.id} video={video} isActive={activeIndex === i} cardHeight={cardHeight} />
+          <VideoCard
+            key={video.id}
+            video={video}
+            isActive={activeIndex === i}
+            cardHeight={cardHeight}
+            user={displayUser}
+            onPlaceEventBet={async (eventId, optionId, amt) => {
+              try {
+                await api.placeEventBet(eventId, optionId, amt);
+                showSuccess(`Bet placed: $${amt} on option`);
+              } catch (err: any) {
+                showError(err.message || 'Failed to place bet');
+              }
+            }}
+          />
         ))}
         <div className="w-full flex items-center justify-center bg-gray-50 snap-start" style={{ height: cardHeight, minHeight: cardHeight }}>
           <div className="text-center">

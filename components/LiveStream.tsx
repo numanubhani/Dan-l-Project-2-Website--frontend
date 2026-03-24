@@ -7,12 +7,27 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 
 interface LiveStreamProps {
-  user: User;
+  user: User | null;
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
 }
 
 const LiveStream: React.FC<LiveStreamProps> = ({ user, onToggleSidebar, sidebarOpen }) => {
+  if (!user) {
+    return (
+      <div className="w-full min-h-screen bg-zinc-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-400 font-medium mb-4">Please log in to go live</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
   const { requireAuth } = useAuth();
   const { showSuccess, showError } = useToast();
   const [isLive, setIsLive] = useState(false);

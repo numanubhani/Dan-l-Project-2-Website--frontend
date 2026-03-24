@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+export const API_BASE_URL = 'http://localhost:8000/api';
 
 export interface LoginCredentials {
   username: string;
@@ -273,6 +273,73 @@ export const api = {
     }
 
     return await response.json();
+  },
+
+  // Place bet on a video bet marker (timestamp-based)
+  async placeMarkerBet(markerId: number | string, optionId: number | string, amount: number): Promise<{ balance: number; bet_id: number }> {
+    const response = await fetch(`${API_BASE_URL}/bets/place-marker/`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ marker_id: markerId, option_id: optionId, amount }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.detail || 'Failed to place bet');
+    }
+    return await response.json();
+  },
+
+  // Place bet on a live bet event
+  async placeEventBet(eventId: number | string, optionId: number | string, amount: number): Promise<{ balance: number; bet_id: number }> {
+    const response = await fetch(`${API_BASE_URL}/bets/place-event/`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ event_id: eventId, option_id: optionId, amount }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || error.detail || 'Failed to place bet');
+    }
+    return await response.json();
+  },
+
+  // Get feed videos (for reels/feed)
+  async getFeedVideos(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/videos/feed/`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || error.error || 'Failed to get feed');
+    }
+    return await response.json();
+  },
+
+  // Get user notifications
+  async getNotifications(): Promise<Array<{ id: number; message: string; type: string; timestamp: number; is_read: boolean; link: string }>> {
+    const response = await fetch(`${API_BASE_URL}/notifications/`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      if (response.status === 401) return [];
+      const error = await response.json();
+      throw new Error(error.detail || error.error || 'Failed to get notifications');
+    }
+    return await response.json();
+  },
+
+  // Mark notification as read
+  async markNotificationRead(notificationId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read/`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || error.error || 'Failed to mark read');
+    }
   },
 
   // Upload video

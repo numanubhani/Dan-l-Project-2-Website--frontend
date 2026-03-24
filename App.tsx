@@ -30,11 +30,7 @@ const AppContent: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [notifications] = useState<Notification[]>([
-    { id: '1', message: 'You won 450 coins on "Triple Backflip Attempt"!', type: 'bet_win', timestamp: Date.now() - 3600000 },
-    { id: '2', message: 'New video from ExtremeSports: "Death Dive"', type: 'new_video', timestamp: Date.now() - 7200000 },
-    { id: '3', message: 'Bet lost: "ChefMaster Challenge"', type: 'bet_loss', timestamp: Date.now() - 86400000 },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Load user on mount
   useEffect(() => {
@@ -56,6 +52,28 @@ const AppContent: React.FC = () => {
     };
     loadUser();
   }, []);
+
+  // Load notifications from backend when user is logged in
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setNotifications([]);
+      return;
+    }
+    const loadNotifications = async () => {
+      try {
+        const data = await api.getNotifications();
+        setNotifications(data.map((n) => ({
+          id: String(n.id),
+          message: n.message,
+          type: n.type as 'bet_win' | 'bet_loss' | 'new_video',
+          timestamp: n.timestamp,
+        })));
+      } catch {
+        setNotifications([]);
+      }
+    };
+    loadNotifications();
+  }, [isAuthenticated, user]);
 
   const handleLoginSuccess = async () => {
     try {
@@ -94,6 +112,13 @@ const AppContent: React.FC = () => {
     }
   }, [location.pathname, navigate]);
 
+  // Hide sidebar when on login page
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
   // Get active tab from current path
   const getActiveTab = () => {
     const path = location.pathname;
@@ -125,22 +150,16 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (!isAuthenticated || !user) {
-    return (
-      <Routes>
-        <Route path="*" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-      </Routes>
-    );
-  }
-
+  // Allow users to browse without login - authentication is only required for specific actions
   return (
     <AuthProvider
-      initialUser={user}
+      initialUser={user || null}
       initialIsAuthenticated={isAuthenticated}
       onLoginSuccess={handleLoginSuccess}
     >
       <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
-      {/* Sidebar - Desktop */}
+      {/* Sidebar - Desktop - Hide on login page */}
+      {location.pathname !== '/login' && (
       <nav className={`hidden lg:flex flex-col w-60 h-screen border-r border-gray-200 bg-white ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6">
@@ -191,7 +210,7 @@ const AppContent: React.FC = () => {
               { id: 'creator', path: '/creator', label: 'Creator Hub', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', role: UserRole.CREATOR },
               { id: 'live', path: '/live', label: 'Go Live', icon: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z', role: UserRole.CREATOR },
               { id: 'admin', path: '/admin', label: 'Admin Panel', icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', role: UserRole.ADMIN },
-            ].filter(i => i.role === user.role || user.role === UserRole.ADMIN).map(item => (
+            ].filter(i => user && (i.role === user.role || user.role === UserRole.ADMIN)).map(item => (
               <button
                 key={item.id}
                 onClick={() => navigate(item.path)}
@@ -206,37 +225,52 @@ const AppContent: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-auto px-6 pt-4 pb-6 border-t border-gray-200">
-          <div className="relative mb-6">
+        {user && (
+          <div className="mt-auto px-6 pt-4 pb-6 border-t border-gray-200">
+            <div className="relative mb-6">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="w-full flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-200 hover:border-purple-300 transition relative"
+              >
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden relative">
+                    <img src={user.avatar} className="w-full h-full object-cover" alt="" />
+                    <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></div>
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-bold truncate text-gray-900">{user.name}</p>
+                  <p className="text-xs text-purple-600 font-bold">${user.balance.toLocaleString()}</p>
+                </div>
+              </button>
+              {showNotifications && (
+                <Notifications 
+                  notifications={notifications} 
+                  onClose={() => setShowNotifications(false)} 
+                />
+              )}
+            </div>
             <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="w-full flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-200 hover:border-purple-300 transition relative"
+              onClick={handleLogout}
+              className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden relative">
-                  <img src={user.avatar} className="w-full h-full object-cover" alt="" />
-                  <div className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></div>
-              </div>
-              <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-bold truncate text-gray-900">{user.name}</p>
-                <p className="text-xs text-purple-600 font-bold">${user.balance.toLocaleString()}</p>
-              </div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+              <span>Logout</span>
             </button>
-            {showNotifications && (
-              <Notifications 
-                notifications={notifications} 
-                onClose={() => setShowNotifications(false)} 
-              />
-            )}
           </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            <span>Logout</span>
-          </button>
-        </div>
+        )}
+        
+        {!user && (
+          <div className="mt-auto px-6 pt-4 pb-6 border-t border-gray-200">
+            <button 
+              onClick={() => navigate('/login')}
+              className="w-full p-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold transition hover:from-purple-600 hover:to-purple-700 flex items-center justify-center space-x-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>
+              <span>Login / Sign Up</span>
+            </button>
+          </div>
+        )}
       </nav>
+      )}
 
       {/* Main Content Area */}
       <main className={`flex-1 relative h-screen overflow-y-auto overflow-x-hidden scrollbar-hide transition-all duration-300 bg-white`}>

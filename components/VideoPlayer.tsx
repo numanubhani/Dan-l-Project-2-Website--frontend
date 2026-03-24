@@ -39,7 +39,34 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   const [activeBetMarker, setActiveBetMarker] = useState<BetMarker | null>(null);
   const [shownMarkers, setShownMarkers] = useState<Set<string>>(new Set());
   const [previewMarkerIndex, setPreviewMarkerIndex] = useState(0);
+  const [relatedVideosList, setRelatedVideosList] = useState<Video[]>([]);
   const isPreviewMode = searchParams.get('preview') === 'true';
+
+  useEffect(() => {
+    if (!id) return;
+    api.getFeedVideos()
+      .then((data: any[]) => {
+        const mapped: Video[] = data
+          .filter((v: any) => String(v.id) !== id)
+          .slice(0, 10)
+          .map((v: any) => ({
+            id: String(v.id),
+            creatorId: String(v.creator ?? ''),
+            creatorName: v.creator_name || 'Creator',
+            creatorAvatar: v.creator_avatar || '',
+            title: v.title || '',
+            description: v.description || '',
+            url: v.video_file_url || v.video_url || '',
+            thumbnail: v.thumbnail_url || v.thumbnail || '',
+            views: v.views || 0,
+            likes: v.likes || 0,
+            comments: v.comments || 0,
+            type: (v.video_type === 'short' ? 'short' : v.video_type === 'live' ? 'live' : 'long') as 'short' | 'long' | 'live',
+          }));
+        setRelatedVideosList(mapped);
+      })
+      .catch(() => setRelatedVideosList([]));
+  }, [id]);
 
   useEffect(() => {
     const loadVideo = async () => {
@@ -57,28 +84,43 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
           // Convert backend video format to frontend format
           const convertedVideo: Video = {
             id: videoData.id.toString(),
+            creatorId: videoData.creator?.toString?.() ?? String(videoData.creator),
+            creatorName: videoData.creator_name || 'Unknown',
+            creatorAvatar: videoData.creator_avatar || '',
             title: videoData.title,
             description: videoData.description || '',
             url: videoData.video_file_url || videoData.video_url || '',
             thumbnail: videoData.thumbnail_url || videoData.thumbnail || '',
-            creator: {
-              id: videoData.creator.toString(),
-              name: videoData.creator_name || 'Unknown',
-              avatar: videoData.creator_avatar || '',
-            },
             views: videoData.views || 0,
             likes: videoData.likes || 0,
             comments: videoData.comments || 0,
             type: videoData.video_type === 'short' ? 'short' : videoData.video_type === 'live' ? 'live' : 'long',
-            isLive: videoData.is_live || false,
             betMarkers: (videoData.bet_markers || []).map((marker: any) => ({
-              id: marker.id,
+              id: String(marker.id),
               timestamp: marker.timestamp,
               question: marker.question,
-              options: marker.options,
+              options: (marker.options || []).map((o: any) => ({
+                id: String(o.id),
+                text: o.text,
+                odds: Number(o.odds),
+              })),
               totalPool: marker.total_pool || 0,
               participants: marker.participants || 0,
             })),
+            ...(videoData.bet_event && {
+              betEvent: {
+                id: String(videoData.bet_event.id),
+                question: videoData.bet_event.question,
+                options: (videoData.bet_event.options || []).map((o: any) => ({
+                  id: String(o.id),
+                  text: o.text,
+                  odds: Number(o.odds),
+                })),
+                totalPool: videoData.bet_event.totalPool ?? 0,
+                participants: videoData.bet_event.participants ?? 0,
+                expiresAt: videoData.bet_event.expiresAt ?? 0,
+              },
+            }),
           };
           
           setVideo(convertedVideo);
@@ -106,17 +148,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   // In preview mode, automatically show bet markers sequentially
   useEffect(() => {
     if (isPreviewMode && video && video.betMarkers && video.betMarkers.length > 0) {
-      // Auto-play video in preview mode
-      if (videoRef.current && !isPlaying) {
-        videoRef.current.play().catch(() => {
-          // Auto-play might be blocked
-        });
-      }
-      
       // Show first bet marker after a short delay
       const timer = setTimeout(() => {
-        if (video.betMarkers && video.betMarkers.length > 0) {
-          videoRef.current?.pause();
+        if (video.betMarkers && video.betMarkers.length > 0 && videoRef.current) {
+          videoRef.current.pause();
           setIsPlaying(false);
           setActiveBetMarker(video.betMarkers[0]);
           setPreviewMarkerIndex(0);
@@ -125,7 +160,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
       return () => clearTimeout(timer);
     }
-  }, [isPreviewMode, video, isPlaying]);
+  }, [isPreviewMode, video]);
 
   useEffect(() => {
     const videoElement = videoRef.current;
@@ -450,7 +485,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
     );
   }
 
-  const relatedVideos = MOCK_VIDEOS.filter(v => v.id !== id).slice(0, 10);
+  const relatedVideos = relatedVideosList.length > 0 ? relatedVideosList : MOCK_VIDEOS.filter(v => v.id !== id).slice(0, 10);
 
   const handleCloseBettingPopup = () => {
     if (isPreviewMode && video && video.betMarkers) {
@@ -462,26 +497,33 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
         // Seek to the next marker's timestamp
         if (videoRef.current) {
           videoRef.current.currentTime = video.betMarkers[nextIndex].timestamp;
+          videoRef.current.pause(); // Keep paused for next popup
         }
       } else {
         // All markers shown, close and resume
         setActiveBetMarker(null);
         if (videoRef.current) {
-          videoRef.current.play();
+          videoRef.current.play().catch(() => {});
+          setIsPlaying(true);
         }
       }
     } else {
       setActiveBetMarker(null);
-      // Resume video playback if user wants
-      if (videoRef.current && !isPlaying) {
-        // Video will resume when user clicks play
+      // Resume video playback after bet is placed or skipped
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+        setIsPlaying(true);
       }
     }
   };
 
   const handleBetPlaced = () => {
     // Bet was placed, popup will close automatically
-    // Could add logic here to update UI or show success
+    // Resume video playback
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
   };
 
   return (

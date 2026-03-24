@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { api } from '../services/api';
+import { api, API_BASE_URL } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 
 interface EditProfileModalProps {
@@ -68,7 +68,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
       }
 
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:8000/api/profile/update/', {
+      const response = await fetch(`${API_BASE_URL}/profile/update/`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Token ${token}`,

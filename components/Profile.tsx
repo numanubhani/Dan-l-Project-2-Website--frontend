@@ -7,13 +7,29 @@ import { useToast } from '../contexts/ToastContext';
 import EditProfileModal from './EditProfileModal';
 
 interface ProfileProps {
-  user: User;
+  user: User | null;
   onUserUpdate?: (user: User) => void;
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, sidebarOpen = true }) => {
+  // If no user is provided, redirect to login or show message
+  if (!user) {
+    return (
+      <div className="w-full min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium mb-4">Please log in to view profiles</p>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
@@ -29,8 +45,8 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   const [shopItems, setShopItems] = useState<any[]>([]);
   const [videosLoading, setVideosLoading] = useState(false);
 
-  const isOwnProfile = !id || id === currentUser?.id || id === user.id;
-  const profileUserId = id || user.id;
+  const isOwnProfile = !id || (currentUser && (id === currentUser.id || id === user?.id)) || (user && id === user.id);
+  const profileUserId = id || (user?.id || '');
 
   useEffect(() => {
     loadProfileData();
@@ -139,30 +155,42 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
     followers_count: 0,
     following_count: 0,
     videos_count: 0,
-    name: user.name,
-    avatar_url: user.avatar,
+    name: user?.name || 'User',
+    avatar_url: user?.avatar || 'https://picsum.photos/seed/user/200',
     bio: '',
     location: '',
   };
 
   return (
     <div className="w-full min-h-screen bg-white pb-20">
-      {/* Hamburger Menu - When sidebar is hidden */}
-      {!sidebarOpen && onToggleSidebar && (
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 lg:hidden">
-          <div className="flex items-center p-3">
+      {/* Top bar with Back button (and optional menu) */}
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="flex items-center justify-between px-3 py-2 lg:px-6 lg:py-3">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-gray-100 text-gray-700 hover:text-purple-600 transition"
+            aria-label="Back to home"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-sm font-semibold hidden sm:inline">Back to Home</span>
+          </button>
+
+          {/* Optional hamburger menu when sidebar is hidden */}
+          {!sidebarOpen && onToggleSidebar && (
             <button
               onClick={onToggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              aria-label="Menu"
+              className="p-2 rounded-full hover:bg-gray-100 transition lg:hidden"
+              aria-label="Open sidebar"
             >
               <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
       
       {/* Tab Navigation - At top for non-profile tabs */}
       {activeTab !== 'profile' && (
@@ -237,15 +265,15 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
         <div className="px-3 py-3">
           <div className="flex flex-col items-center mb-4">
             <div className="relative mb-2">
-              <img
-                src={displayData.avatar_url || user.avatar}
-                alt={displayData.name || user.name}
+                <img
+                src={displayData.avatar_url || user?.avatar || 'https://picsum.photos/seed/user/200'}
+                alt={displayData.name || user?.name || 'User'}
                 className="w-16 h-16 rounded-full border-2 border-purple-400"
               />
               <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
-            <h2 className="text-lg font-black text-gray-900 mb-0.5">{displayData.name || user.name}</h2>
-            <p className="text-xs text-gray-500 mb-1">@{profileData?.username || user.name.toLowerCase().replace(' ', '')}</p>
+            <h2 className="text-lg font-black text-gray-900 mb-0.5">{displayData.name || user?.name || 'User'}</h2>
+            <p className="text-xs text-gray-500 mb-1">@{profileData?.username || (user?.name || 'user').toLowerCase().replace(' ', '')}</p>
             {displayData.bio && (
               <p className="text-xs text-gray-600 text-center mb-2 px-4">{displayData.bio}</p>
             )}
@@ -258,12 +286,12 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] text-gray-500 font-bold mb-0.5">Balance</p>
-                  <p className="text-lg font-black text-purple-600">${user.balance.toLocaleString()}</p>
+                  <p className="text-lg font-black text-purple-600">${(user?.balance || 0).toLocaleString()}</p>
                 </div>
                 {isOwnProfile && (
                   <button 
                     onClick={() => {
-                      if (user.balance < 10) {
+                      if (!user || (user.balance || 0) < 10) {
                         showError('Minimum balance for withdraw is $10');
                       } else {
                         showSuccess('Withdrawal request submitted!');
