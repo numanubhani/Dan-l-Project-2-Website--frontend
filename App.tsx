@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Feed from './components/Feed';
 import Home from './components/Home';
+import HomeLongVideos from './components/HomeLongVideos';
 import VideoPlayer from './components/VideoPlayer';
 import CreatorDashboard from './components/CreatorDashboard';
 import AdminPanel from './components/AdminPanel';
@@ -277,7 +278,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
-          <Route path="/home" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
+          <Route path="/home" element={<HomeLongVideos onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/watch/:id" element={<VideoPlayer />} />
           <Route path="/feed" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
           <Route path="/reel" element={<Feed user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
