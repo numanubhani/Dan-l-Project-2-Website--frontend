@@ -260,21 +260,29 @@ export const api = {
   },
 
   // Get user videos
-  async getUserVideos(userId: string, type?: 'reels' | 'videos' | 'live'): Promise<any[]> {
-    const url = type 
-      ? `${API_BASE_URL}/videos/user/${userId}/?type=${type}`
-      : `${API_BASE_URL}/videos/user/${userId}/`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
+  async getUserVideos(userId: string, videoType?: 'short' | 'long' | 'live'): Promise<any[]> {
+    const base = `${API_BASE_URL}/videos/user/${userId}/`;
+    const headers = getAuthHeaders();
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(parseErrorMessage(error, 'Failed to get videos'));
+    const tryFetch = async (url: string) => {
+      const response = await fetch(url, { method: 'GET', headers });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(parseErrorMessage(error, 'Failed to get videos'));
+      }
+      return (await response.json()) as any[];
+    };
+
+    if (!videoType) {
+      return await tryFetch(base);
     }
 
-    return await response.json();
+    // Backends vary: some use `video_type`, others use `type`.
+    try {
+      return await tryFetch(`${base}?video_type=${encodeURIComponent(videoType)}`);
+    } catch {
+      return await tryFetch(`${base}?type=${encodeURIComponent(videoType)}`);
+    }
   },
 
   // Get inbox

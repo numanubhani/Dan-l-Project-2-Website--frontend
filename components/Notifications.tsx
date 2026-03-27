@@ -9,7 +9,7 @@ interface NotificationsProps {
 
 const Notifications: React.FC<NotificationsProps> = ({ notifications, onClose }) => {
   return (
-    <div className="absolute top-16 right-0 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-[110] overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed top-20 right-4 w-[min(420px,calc(100vw-2rem))] bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl z-[10010] overflow-hidden animate-in fade-in zoom-in duration-200">
       <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
         <h3 className="font-bold">Notifications</h3>
         <button onClick={onClose} className="text-zinc-500 hover:text-white">

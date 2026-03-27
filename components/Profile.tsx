@@ -80,9 +80,10 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
       setVideosLoading(true);
       let videos;
       if (activeTab === 'reels') {
-        videos = await api.getUserVideos(profileUserId, 'reels');
+        videos = await api.getUserVideos(profileUserId, 'short');
       } else if (activeTab === 'video-live') {
-        videos = await api.getUserVideos(profileUserId, 'videos');
+        // This tab shows long-form videos (live streams are typically separate UX)
+        videos = await api.getUserVideos(profileUserId, 'long');
       } else {
         videos = await api.getUserVideos(profileUserId);
       }
