@@ -288,7 +288,7 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
   return (
     <div className="w-full min-h-screen bg-black relative">
       {/* Desktop Top Bar - YouTube Style */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] bg-white border-b border-gray-200 h-14 items-center px-4 w-full">
+      <div className="hidden lg:flex sticky top-0 z-[9998] bg-black/60 backdrop-blur-xl border-b border-gray-200 h-16 items-center px-4 w-full">
         {/* Left Section - Hamburger + Logo when sidebar is closed */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           {!sidebarOpen && (
@@ -404,7 +404,7 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
       </div>
 
       {/* Mobile Sticky Top Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-[9998] bg-white border-b border-gray-200 lg:hidden">
+      <div className="fixed top-0 left-0 right-0 z-[9998] bg-black/70 backdrop-blur-xl border-b border-gray-200 lg:hidden">
         <div className="relative flex items-center">
           {/* Live Icon - Index 0 (Fixed) */}
           <button

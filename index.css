@@ -1,0 +1,175 @@
+:root {
+  --bg-0: #06060a;
+  --bg-1: #0b0915;
+  --bg-2: #121026;
+  --surface-1: #17122a;
+  --surface-2: #1f1636;
+  --surface-3: #231b3f;
+  --text-primary: #f5f7ff;
+  --text-secondary: #b8bfd9;
+  --text-muted: #8b93b5;
+  --border-subtle: rgba(139, 92, 246, 0.24);
+  --pink: #ff2d7a;
+  --blue: #38bdf8;
+  --cyan: #22d3ee;
+  --violet: #8b5cf6;
+  --success: #2ee6b8;
+  --radius-card: 24px;
+  --radius-btn: 18px;
+  --radius-input: 16px;
+  --shadow-glow-pink: 0 10px 30px rgba(255, 45, 122, 0.28);
+  --shadow-glow-violet: 0 10px 30px rgba(139, 92, 246, 0.28);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.2), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(34, 211, 238, 0.16), transparent 35%),
+    linear-gradient(135deg, var(--bg-0) 0%, var(--bg-1) 45%, #0f0c20 100%);
+  color: var(--text-primary);
+}
+
+#root {
+  min-height: 100%;
+}
+
+/* Core shell helpers */
+.neon-surface {
+  background: linear-gradient(145deg, rgba(30, 22, 52, 0.9), rgba(14, 11, 26, 0.92));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+}
+
+.glass-surface {
+  background: linear-gradient(145deg, rgba(36, 26, 61, 0.62), rgba(11, 10, 21, 0.74));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.neon-cta {
+  background: linear-gradient(135deg, var(--pink), #ff4d9a 45%, var(--violet));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: var(--shadow-glow-pink);
+}
+
+.neon-cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.neon-outline {
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: rgba(13, 13, 23, 0.76);
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.18);
+}
+
+/* Utility remap for existing Tailwind-heavy UI */
+.bg-white {
+  background-color: var(--bg-1) !important;
+}
+
+.bg-gray-50,
+.bg-gray-100,
+.bg-gray-200 {
+  background-color: var(--surface-1) !important;
+}
+
+.bg-zinc-900 {
+  background-color: #0f0b1b !important;
+}
+
+.text-gray-900,
+.text-zinc-200,
+.text-zinc-100 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-700,
+.text-gray-600,
+.text-zinc-400,
+.text-zinc-500 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-500,
+.text-zinc-600 {
+  color: var(--text-muted) !important;
+}
+
+.border-gray-100,
+.border-gray-200,
+.border-gray-300,
+.border-zinc-800,
+.border-zinc-700 {
+  border-color: var(--border-subtle) !important;
+}
+
+.from-purple-500,
+.from-purple-400 {
+  --tw-gradient-from: var(--pink) var(--tw-gradient-from-position) !important;
+}
+
+.to-purple-600,
+.to-purple-500 {
+  --tw-gradient-to: var(--violet) var(--tw-gradient-to-position) !important;
+}
+
+.text-purple-600,
+.text-purple-500,
+.text-purple-400 {
+  color: #d2b0ff !important;
+}
+
+.bg-purple-500,
+.bg-purple-600,
+.bg-purple-400 {
+  background-color: rgba(255, 45, 122, 0.9) !important;
+}
+
+.hover\:bg-purple-600:hover,
+.hover\:bg-purple-500:hover {
+  background-color: rgba(255, 45, 122, 1) !important;
+}
+
+input,
+textarea,
+select {
+  background-color: rgba(19, 16, 34, 0.92) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(139, 92, 246, 0.36) !important;
+  border-radius: var(--radius-input) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(255, 45, 122, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(255, 45, 122, 0.2) !important;
+}
+
+button {
+  transition: all 0.2s ease;
+}
+
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: var(--radius-card) !important;
+}
+
+.rounded-lg {
+  border-radius: var(--radius-btn) !important;
+}

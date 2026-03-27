@@ -162,9 +162,9 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   };
 
   return (
-    <div className="w-full min-h-screen bg-white pb-20">
+    <div className="w-full min-h-screen pb-20">
       {/* Top bar with Back button (and optional menu) */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-200">
+      <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-gray-200">
         <div className="flex items-center justify-between px-3 py-2 lg:px-6 lg:py-3">
           <button
             onClick={() => navigate('/')}
@@ -194,7 +194,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
       
       {/* Tab Navigation - At top for non-profile tabs */}
       {activeTab !== 'profile' && (
-        <div className="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-gray-200">
           <div className="flex items-center justify-around overflow-x-auto">
             <button
               onClick={() => setActiveTab('profile')}

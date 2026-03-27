@@ -127,7 +127,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[10000] flex items-center justify-center p-4" onClick={onClose}>
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" 
+        className="neon-surface w-full max-w-2xl max-h-[90vh] overflow-y-auto" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

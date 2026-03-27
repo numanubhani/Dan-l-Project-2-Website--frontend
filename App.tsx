@@ -139,7 +139,7 @@ const AppContent: React.FC = () => {
   // Show login if not authenticated
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/40 mx-auto mb-4">
             <span className="text-3xl font-black italic text-white">V</span>
@@ -157,10 +157,10 @@ const AppContent: React.FC = () => {
       initialIsAuthenticated={isAuthenticated}
       onLoginSuccess={handleLoginSuccess}
     >
-      <div className="min-h-screen bg-white text-gray-900 flex flex-col lg:flex-row relative">
+      <div className="min-h-screen text-gray-900 flex flex-col lg:flex-row relative">
       {/* Sidebar - Desktop - Hide on login page */}
       {location.pathname !== '/login' && (
-      <nav className={`hidden lg:flex flex-col w-60 h-screen border-r border-gray-200 bg-white ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <nav className={`hidden lg:flex flex-col w-64 h-screen border-r border-gray-200 glass-surface ${sidebarOpen ? 'sticky' : 'fixed'} top-0 overflow-y-auto sidebar-scrollbar transition-transform duration-300 z-50 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -193,7 +193,7 @@ const AppContent: React.FC = () => {
               key={item.id}
               onClick={() => navigate(item.path)}
               className={`w-full flex items-center space-x-4 p-3 rounded-xl transition-all font-bold ${
-                activeTab === item.id ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                activeTab === item.id ? 'neon-outline text-purple-600 border border-purple-200 shadow-neon-violet' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
@@ -215,7 +215,7 @@ const AppContent: React.FC = () => {
                 key={item.id}
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center space-x-4 p-3 rounded-xl transition-all font-bold ${
-                  activeTab === item.id ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  activeTab === item.id ? 'neon-outline text-purple-600 border border-purple-200 shadow-neon-violet' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
@@ -230,7 +230,7 @@ const AppContent: React.FC = () => {
             <div className="relative mb-6">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="w-full flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-200 hover:border-purple-300 transition relative"
+                className="w-full flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-200 hover:border-purple-300 transition relative neon-outline"
               >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 overflow-hidden relative">
                     <img src={user.avatar} className="w-full h-full object-cover" alt="" />
@@ -250,7 +250,7 @@ const AppContent: React.FC = () => {
             </div>
             <button 
               onClick={handleLogout}
-              className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200"
+              className="w-full p-3 bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl font-bold transition flex items-center justify-center space-x-2 border border-gray-200 neon-outline"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
               <span>Logout</span>
@@ -262,7 +262,7 @@ const AppContent: React.FC = () => {
           <div className="mt-auto px-6 pt-4 pb-6 border-t border-gray-200">
             <button 
               onClick={() => navigate('/login')}
-              className="w-full p-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold transition hover:from-purple-600 hover:to-purple-700 flex items-center justify-center space-x-2"
+              className="w-full p-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-bold transition hover:from-purple-600 hover:to-purple-700 flex items-center justify-center space-x-2 neon-cta"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" /></svg>
               <span>Login / Sign Up</span>
@@ -273,7 +273,7 @@ const AppContent: React.FC = () => {
       )}
 
       {/* Main Content Area */}
-      <main className={`flex-1 relative h-screen overflow-y-auto overflow-x-hidden scrollbar-hide transition-all duration-300 bg-white`}>
+      <main className={`flex-1 relative h-screen overflow-y-auto overflow-x-hidden scrollbar-hide transition-all duration-300`}>
         <Routes>
           <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/" element={<Home user={user} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />} />
@@ -295,7 +295,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* Mobile Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 flex items-center py-1.5 px-3 z-[9999] shadow-lg">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/70 backdrop-blur-xl border-t border-gray-200 flex items-center py-2 px-3 z-[9999] shadow-lg">
         {/* Left side icons */}
         <div className="flex-1 flex justify-around items-center">
           {[

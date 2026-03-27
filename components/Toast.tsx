@@ -55,19 +55,19 @@ const ToastComponent: React.FC<ToastProps> = ({ toast, onClose }) => {
   const getStyles = () => {
     switch (toast.type) {
       case 'success':
-        return 'bg-green-50 border-green-200 text-green-800';
+        return 'bg-green-500/15 border-green-400/40 text-green-200';
       case 'error':
-        return 'bg-red-50 border-red-200 text-red-800';
+        return 'bg-red-500/15 border-red-400/40 text-red-200';
       case 'warning':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
+        return 'bg-yellow-500/15 border-yellow-400/40 text-yellow-200';
       default:
-        return 'bg-blue-50 border-blue-200 text-blue-800';
+        return 'bg-cyan-500/15 border-cyan-400/40 text-cyan-200';
     }
   };
 
   return (
     <div
-      className={`${getStyles()} border rounded-lg shadow-lg p-4 mb-3 flex items-start space-x-3 min-w-[300px] max-w-md`}
+      className={`${getStyles()} border rounded-lg shadow-lg p-4 mb-3 flex items-start space-x-3 min-w-[300px] max-w-md backdrop-blur-xl`}
       role="alert"
       style={{
         animation: 'slideIn 0.3s ease-out'

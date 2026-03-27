@@ -425,9 +425,9 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack, user }) => 
   });
 
   return (
-    <div className="h-full w-full bg-white text-gray-900 overflow-y-auto overflow-x-hidden">
+    <div className="h-full w-full text-gray-900 overflow-y-auto overflow-x-hidden">
       {/* Top Bar with Search and Menu */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 backdrop-blur-xl shadow-sm">
+      <div className="sticky top-0 z-40 bg-black/60 border-b border-gray-200 backdrop-blur-xl shadow-sm">
         <div className="px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Mobile Back Button */}

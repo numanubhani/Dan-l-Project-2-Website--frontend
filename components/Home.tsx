@@ -91,9 +91,9 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
   };
 
   return (
-    <div className="w-full min-h-screen bg-white">
+    <div className="w-full min-h-screen">
       {/* Desktop Top Bar - YouTube Style */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] bg-white border-b border-gray-200 h-14 items-center px-4 w-full">
+      <div className="hidden lg:flex sticky top-0 z-[9998] bg-black/60 backdrop-blur-xl border-b border-gray-200 h-16 items-center px-4 w-full">
         {/* Left Section - Hamburger + Logo when sidebar is closed */}
         <div className="flex items-center space-x-3 flex-shrink-0">
           {!sidebarOpen && (
@@ -197,12 +197,12 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
         <div className={`mx-auto px-4 sm:px-6 lg:px-8 py-6 ${sidebarOpen ? 'max-w-7xl' : 'max-w-full'}`}>
           {/* Loading / Empty States */}
           {isLoading && (
-            <div className="py-16 text-center text-gray-500 font-medium">
+            <div className="py-16 text-center text-gray-500 font-medium neon-surface">
               Loading videos...
             </div>
           )}
           {!isLoading && videos.length === 0 && (
-            <div className="py-16 text-center text-gray-500 font-medium">
+            <div className="py-16 text-center text-gray-500 font-medium neon-surface">
               No videos yet. Be the first to upload!
             </div>
           )}
@@ -263,7 +263,7 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
                   <div
                     key={video.id}
                     onClick={() => handleVideoClick(video)}
-                    className="cursor-pointer group"
+                    className="cursor-pointer group neon-surface p-3"
                   >
                     {/* Thumbnail */}
                     <div className="relative aspect-video bg-gray-200 rounded-lg overflow-hidden mb-2">

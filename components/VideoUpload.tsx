@@ -225,7 +225,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white pb-20">
+    <div className="w-full min-h-screen pb-20">
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -246,7 +246,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
           <div className="lg:col-span-2 space-y-4">
             {/* File Selection */}
             {!videoUrl && (
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center neon-surface">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -324,7 +324,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
 
             {/* Video Title and Description */}
             {videoUrl && (
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <div className="bg-gray-50 rounded-xl p-4 space-y-3 neon-surface">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">Video Title *</label>
                   <input
@@ -425,7 +425,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
 
             {/* Upload Progress */}
             {isUploading && (
-              <div className="bg-gray-50 rounded-xl p-6">
+              <div className="bg-gray-50 rounded-xl p-6 neon-surface">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-bold text-gray-700">Uploading...</span>
                   <span className="text-sm font-bold text-purple-600">{uploadProgress}%</span>
@@ -452,7 +452,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
 
             {/* Video Info */}
             {videoUrl && (
-              <div className="bg-gray-50 rounded-xl p-4">
+              <div className="bg-gray-50 rounded-xl p-4 neon-surface">
                 <h3 className="font-bold text-gray-900 mb-3">Video Information</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -513,7 +513,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
 
           {/* Right: Betting Panel */}
           <div className="space-y-4">
-            <div className="bg-gray-50 rounded-xl p-4">
+            <div className="bg-gray-50 rounded-xl p-4 neon-surface">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-black text-gray-900">Betting Markers</h3>
                 {videoUrl && (

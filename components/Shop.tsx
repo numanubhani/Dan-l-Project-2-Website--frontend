@@ -104,9 +104,9 @@ const Shop: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-gray-200 shadow-sm">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>

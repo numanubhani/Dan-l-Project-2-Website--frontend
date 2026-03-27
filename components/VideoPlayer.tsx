@@ -527,7 +527,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 flex flex-col">
+    <div className="w-full min-h-screen flex flex-col">
       {/* Betting Popup */}
       {activeBetMarker && (
         <BettingPopup
@@ -553,7 +553,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
         </div>
       )}
       {/* Top Navigation Bar - Desktop */}
-      <div className="hidden lg:flex sticky top-0 z-50 bg-white border-b border-gray-200 h-14 items-center px-6 shadow-sm">
+      <div className="hidden lg:flex sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-gray-200 h-14 items-center px-6 shadow-sm">
         <div className="flex items-center justify-between w-full max-w-[1920px] mx-auto">
           {/* Left: Hamburger & Logo */}
           <div className="flex items-center space-x-4">
