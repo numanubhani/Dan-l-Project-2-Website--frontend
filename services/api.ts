@@ -95,6 +95,13 @@ const parseErrorMessage = (error: any, fallback: string): string => {
   return error.detail || error.message || error.error || fallback;
 };
 
+const normalizeListResponse = <T,>(payload: any): T[] => {
+  if (Array.isArray(payload)) return payload as T[];
+  if (payload && Array.isArray(payload.results)) return payload.results as T[];
+  if (payload && Array.isArray(payload.data)) return payload.data as T[];
+  return [];
+};
+
 // API Functions
 export const api = {
   // Authentication
@@ -270,7 +277,8 @@ export const api = {
         const error = await response.json();
         throw new Error(parseErrorMessage(error, 'Failed to get videos'));
       }
-      return (await response.json()) as any[];
+      const payload = await response.json();
+      return normalizeListResponse<any>(payload);
     };
 
     if (!videoType) {
@@ -353,7 +361,8 @@ export const api = {
       const error = await response.json();
       throw new Error(parseErrorMessage(error, 'Failed to get feed'));
     }
-    return await response.json();
+    const payload = await response.json();
+    return normalizeListResponse<any>(payload);
   },
 
   // Get user notifications
