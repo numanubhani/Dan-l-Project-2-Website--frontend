@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { useToast } from '../contexts/ToastContext';
-import { api, API_BASE_URL } from '../services/api';
+import { API_BASE_URL, getAuthorizationHeader } from '../services/api';
 
 interface VideoUploadProps {
   user: User | null;
@@ -171,9 +171,11 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ user }) => {
         setIsUploading(false);
       });
 
-      const token = localStorage.getItem('auth_token');
       xhr.open('POST', `${API_BASE_URL}/videos/upload/`);
-      xhr.setRequestHeader('Authorization', `Token ${token}`);
+      const authorization = getAuthorizationHeader();
+      if (authorization) {
+        xhr.setRequestHeader('Authorization', authorization);
+      }
       xhr.send(formData);
 
     } catch (err: any) {

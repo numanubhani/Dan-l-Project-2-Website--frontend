@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
-import { api, API_BASE_URL } from '../services/api';
+import { api, API_BASE_URL, getAuthorizationHeader } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 
 interface EditProfileModalProps {
@@ -67,12 +67,12 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, onClose, us
         formDataToSend.append('avatar', avatarFile);
       }
 
-      const token = localStorage.getItem('auth_token');
       const response = await fetch(`${API_BASE_URL}/profile/update/`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Token ${token}`,
-        },
+        headers: (() => {
+          const authorization = getAuthorizationHeader();
+          return authorization ? { Authorization: authorization } : {};
+        })(),
         body: formDataToSend,
       });
 

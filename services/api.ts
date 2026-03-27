@@ -1,4 +1,6 @@
-export const API_BASE_URL = 'http://localhost:8000/api';
+export const API_BASE_URL =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/+$/, '') ||
+  'https://muhammadnumansubhan1.pythonanywhere.com/api';
 
 export interface LoginCredentials {
   username: string;
@@ -26,18 +28,22 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
-  message: string;
+  user?: User;
+  token?: string;
+  key?: string;
+  access?: string;
+  message?: string;
+  [key: string]: any;
 }
 
 // Convert API user to frontend user format
 export const convertApiUserToUser = (apiUser: User): any => {
+  const normalizedRole = String(apiUser.role || 'VIEWER').toUpperCase();
   return {
     id: apiUser.id.toString(),
     name: apiUser.name || apiUser.username,
     avatar: apiUser.avatar_url || 'https://picsum.photos/seed/user/200',
-    role: apiUser.role,
+    role: normalizedRole,
     balance: parseFloat(apiUser.balance.toString()),
   };
 };
@@ -71,6 +77,24 @@ const getAuthHeaders = (): HeadersInit => {
   return headers;
 };
 
+// Shared authorization header for non-JSON requests (e.g. FormData)
+export const getAuthorizationHeader = (): string | null => {
+  const token = getAuthToken();
+  return token ? `Token ${token}` : null;
+};
+
+const extractToken = (payload: AuthResponse): string | null => {
+  return payload.token || payload.key || payload.access || null;
+};
+
+const parseErrorMessage = (error: any, fallback: string): string => {
+  if (!error) return fallback;
+  if (typeof error === 'string') return error;
+  if (Array.isArray(error)) return error[0] || fallback;
+  if (Array.isArray(error.detail)) return error.detail[0] || fallback;
+  return error.detail || error.message || error.error || fallback;
+};
+
 // API Functions
 export const api = {
   // Authentication
@@ -85,11 +109,14 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Registration failed');
+      throw new Error(parseErrorMessage(error, 'Registration failed'));
     }
 
     const result: AuthResponse = await response.json();
-    setAuthToken(result.token);
+    const token = extractToken(result);
+    if (token) {
+      setAuthToken(token);
+    }
     return result;
   },
 
@@ -104,11 +131,16 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Login failed');
+      throw new Error(parseErrorMessage(error, 'Login failed'));
     }
 
     const result: AuthResponse = await response.json();
-    setAuthToken(result.token);
+    const token = extractToken(result);
+    if (token) {
+      setAuthToken(token);
+    } else {
+      throw new Error('Login succeeded but no auth token was returned by the API.');
+    }
     return result;
   },
 
@@ -136,7 +168,7 @@ export const api = {
         throw new Error('Unauthorized');
       }
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get user');
+      throw new Error(parseErrorMessage(error, 'Failed to get user'));
     }
 
     return await response.json();
@@ -154,7 +186,7 @@ export const api = {
         throw new Error('Unauthorized');
       }
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get profile');
+      throw new Error(parseErrorMessage(error, 'Failed to get profile'));
     }
 
     return await response.json();
@@ -173,7 +205,7 @@ export const api = {
         throw new Error('Unauthorized');
       }
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to update profile');
+      throw new Error(parseErrorMessage(error, 'Failed to update profile'));
     }
 
     return await response.json();
@@ -188,7 +220,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get user profile');
+      throw new Error(parseErrorMessage(error, 'Failed to get user profile'));
     }
 
     return await response.json();
@@ -203,7 +235,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to follow/unfollow');
+      throw new Error(parseErrorMessage(error, 'Failed to follow/unfollow'));
     }
 
     return await response.json();
@@ -221,7 +253,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get video');
+      throw new Error(parseErrorMessage(error, 'Failed to get video'));
     }
 
     return await response.json();
@@ -239,7 +271,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get videos');
+      throw new Error(parseErrorMessage(error, 'Failed to get videos'));
     }
 
     return await response.json();
@@ -254,7 +286,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get inbox');
+      throw new Error(parseErrorMessage(error, 'Failed to get inbox'));
     }
 
     return await response.json();
@@ -269,7 +301,7 @@ export const api = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to get shop items');
+      throw new Error(parseErrorMessage(error, 'Failed to get shop items'));
     }
 
     return await response.json();
@@ -284,7 +316,7 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || error.detail || 'Failed to place bet');
+      throw new Error(parseErrorMessage(error, 'Failed to place bet'));
     }
     return await response.json();
   },
@@ -298,7 +330,7 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || error.detail || 'Failed to place bet');
+      throw new Error(parseErrorMessage(error, 'Failed to place bet'));
     }
     return await response.json();
   },
@@ -311,7 +343,7 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.error || 'Failed to get feed');
+      throw new Error(parseErrorMessage(error, 'Failed to get feed'));
     }
     return await response.json();
   },
@@ -325,7 +357,7 @@ export const api = {
     if (!response.ok) {
       if (response.status === 401) return [];
       const error = await response.json();
-      throw new Error(error.detail || error.error || 'Failed to get notifications');
+      throw new Error(parseErrorMessage(error, 'Failed to get notifications'));
     }
     return await response.json();
   },
@@ -338,7 +370,7 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.error || 'Failed to mark read');
+      throw new Error(parseErrorMessage(error, 'Failed to mark read'));
     }
   },
 
@@ -381,18 +413,16 @@ export const api = {
       formData.append('bet_markers', JSON.stringify(data.bet_markers));
     }
 
-    const token = getAuthToken();
+    const authorization = getAuthorizationHeader();
     const response = await fetch(`${API_BASE_URL}/videos/upload/`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Token ${token}`,
-      },
+      headers: authorization ? { Authorization: authorization } : {},
       body: formData,
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'Failed to upload video');
+      throw new Error(parseErrorMessage(error, 'Failed to upload video'));
     }
 
     return await response.json();
