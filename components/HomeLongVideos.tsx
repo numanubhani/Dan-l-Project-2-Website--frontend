@@ -49,9 +49,9 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
   );
 
   return (
-    <div className="w-full min-h-screen bg-neon-base">
+    <div className="w-full min-h-screen bg-[#0f0f0f]">
       {/* ── Desktop Top Bar ── */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] h-14 items-center gap-2 px-3 bg-neon-base/95 backdrop-blur-md border-b border-white/[0.08] shadow-neon-line w-full">
+      <div className="hidden lg:flex sticky top-0 z-[9998] h-14 items-center gap-2 px-3 bg-[#0f0f0f] border-b border-white/[0.08] w-full">
 
         {/* Left: hamburger when sidebar closed */}
         {!sidebarOpen && (
@@ -69,7 +69,7 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/[0.07] border border-white/[0.12] rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-neon-pink/55 transition duration-200"
+                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/[0.07] border border-white/[0.12] rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-[#FE2C55]/60 transition"
               />
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                 <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,11 +101,11 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
           </button>
 
           {user ? (
-            <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-neon-pink/50 transition duration-200 ml-1">
+            <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-[#FE2C55]/50 transition ml-1">
               <img src={user.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
             </button>
           ) : (
-            <button onClick={() => navigate('/login')} className="ml-1 px-4 py-1.5 rounded-full border-2 border-neon-pink text-neon-pink font-bold text-sm hover:bg-neon-pink/10 transition duration-200 shadow-[0_0_16px_rgba(236,72,153,0.15)]">
+            <button onClick={() => navigate('/login')} className="ml-1 px-4 py-1.5 rounded-full border-2 border-[#FE2C55] text-[#FE2C55] font-bold text-sm hover:bg-[#FE2C55]/10 transition">
               Log in
             </button>
           )}
@@ -116,7 +116,7 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
         {isLoading ? (
           <div className="w-full flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-neon-pink border-t-transparent rounded-full animate-spin mx-auto mb-4 shadow-[0_0_20px_rgba(236,72,153,0.25)]" />
+              <div className="w-12 h-12 border-4 border-[#FE2C55] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
               <p className="text-white/50 font-semibold">Loading videos…</p>
             </div>
           </div>
@@ -128,7 +128,7 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
               </svg>
             </div>
             <p className="text-white/40 font-semibold mb-4">No videos yet. Be the first to upload!</p>
-            <button onClick={() => navigate('/upload')} className="px-5 py-2.5 bg-neon-pink text-white rounded-full font-bold text-sm hover:bg-neon-pink-hover transition duration-200 shadow-neon-pink/35">
+            <button onClick={() => navigate('/upload')} className="px-5 py-2.5 bg-[#FE2C55] text-white rounded-full font-bold text-sm hover:bg-[#e6254b] transition">
               Upload a video
             </button>
           </div>
@@ -154,7 +154,7 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, 
                     <img src={video.creatorAvatar || 'https://picsum.photos/seed/av/200'} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm text-white line-clamp-2 leading-snug mb-1 group-hover:text-neon-pink transition duration-200">
+                    <h3 className="font-semibold text-sm text-white line-clamp-2 leading-snug mb-1 group-hover:text-[#FE2C55] transition">
                       {video.title || 'Untitled'}
                     </h3>
                     <p className="text-xs text-white/50">{video.creatorName}</p>
