@@ -3,11 +3,11 @@ import React from 'react';
 import { Video, UserRole, User, BetMarker } from './types';
 
 export const COLORS = {
-  primary: '#a855f7',
-  secondary: '#c084fc',
-  background: '#0a0a0f',
+  primary: '#8b5cf6', // Purple-500
+  secondary: '#a78bfa', // Purple-400
+  background: '#000000',
   text: '#ffffff',
-  accent: '#ec4899',
+  accent: '#f5f3ff',
 };
 
 export const MOCK_USER: User = {
