@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MOCK_VIDEOS, MOCK_USER } from '../constants';
-import { HeartIcon, CommentIcon, ShareIcon, BetIcon } from './Icons';
+import { HeartIcon, CommentIcon, ShareIcon } from './Icons';
 import BettingOverlay from './BettingOverlay';
 import { Video, User } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,34 +14,41 @@ interface FeedProps {
   sidebarOpen?: boolean;
 }
 
+// ─── VideoCard ─── only video + bottom info (no action bar — actions are rendered externally on desktop)
 const VideoCard: React.FC<{
   video: Video;
   isActive: boolean;
   cardHeight: string;
-  user: User;
+  isLiked: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onBet: () => void;
+  showBettingOverlay: boolean;
+  onCloseBetting: () => void;
   onPlaceEventBet: (eventId: string, optionId: string, amount: number) => Promise<void>;
-}> = ({ video, isActive, cardHeight, user, onPlaceEventBet }) => {
+  user: User;
+}> = ({
+  video, isActive, cardHeight,
+  isLiked, onLike, onComment, onBet,
+  showBettingOverlay, onCloseBetting, onPlaceEventBet,
+  user,
+}) => {
   const { requireAuth } = useAuth();
   const { showSuccess } = useToast();
-  const [showBetting, setShowBetting] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isLiked, setIsLiked] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showPauseIcon, setShowPauseIcon] = useState(false);
 
   useEffect(() => {
     if (isActive && videoRef.current && !isPaused) {
-      videoRef.current.play().catch(e => console.log('Autoplay blocked'));
+      videoRef.current.play().catch(() => {});
     } else if (videoRef.current) {
       videoRef.current.pause();
     }
   }, [isActive, isPaused]);
 
-  // Reset pause state when video becomes inactive
   useEffect(() => {
-    if (!isActive) {
-      setIsPaused(false);
-    }
+    if (!isActive) setIsPaused(false);
   }, [isActive]);
 
   const togglePlayPause = () => {
@@ -59,12 +66,12 @@ const VideoCard: React.FC<{
   };
 
   return (
-    <div 
+    <div
       className="relative w-full snap-start snap-always overflow-hidden bg-black flex items-center justify-center cursor-pointer"
-      style={{ height: cardHeight, maxHeight: cardHeight, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
+      style={{ height: cardHeight, maxHeight: cardHeight, minHeight: cardHeight, scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       onClick={togglePlayPause}
     >
-      {/* Video element */}
+      {/* Video */}
       <video
         ref={videoRef}
         src={video.url}
@@ -73,114 +80,92 @@ const VideoCard: React.FC<{
         className="absolute inset-0 w-full h-full object-cover"
         poster={video.thumbnail}
       />
-      
-      {/* Play/Pause feedback icon */}
+
+      {/* Play/Pause feedback */}
       {showPauseIcon && (
         <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-          <div className="bg-black/40 p-6 rounded-full animate-ping opacity-0">
-             {isPaused ? (
-               <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-             ) : (
-               <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-             )}
-          </div>
-          <div className="bg-black/20 p-6 rounded-full absolute transition-opacity duration-300">
-             {isPaused ? (
-               <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-             ) : (
-               <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-             )}
+          <div className="bg-black/30 p-5 rounded-full">
+            {isPaused
+              ? <svg className="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              : <svg className="w-14 h-14 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            }
           </div>
         </div>
       )}
 
-      {/* Overlay controls */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/80 pointer-events-none" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/75 pointer-events-none" />
 
-      {/* Right Side Interaction Bar */}
-      <div className="absolute right-2 bottom-24 lg:bottom-16 flex flex-col items-center space-y-3 sm:space-y-3.5 lg:space-y-4 z-[10]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex flex-col items-center group cursor-pointer">
+      {/* MOBILE ONLY: action rail inside card */}
+      <div
+        className="lg:hidden absolute right-2 bottom-24 flex flex-col items-center space-y-4 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center">
           <div className="relative">
-            <img src={video.creatorAvatar} className="w-12 h-12 lg:w-10 lg:h-10 rounded-full border-2 border-white" alt={video.creatorName} />
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-purple-500 rounded-full p-0.5">
-              <svg className="w-3.5 h-3.5 lg:w-3 lg:h-3" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <img src={video.creatorAvatar || 'https://picsum.photos/seed/avatar/200'} className="w-12 h-12 rounded-full border-2 border-white" alt={video.creatorName} />
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-pink-500 rounded-full p-0.5">
+              <svg className="w-3 h-3" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             </div>
           </div>
         </div>
 
-        <button 
-          onClick={() => requireAuth(() => {
-            setIsLiked(!isLiked);
-            showSuccess(isLiked ? 'Removed from likes' : 'Liked!');
-          }, 'like this video')}
-          className="flex flex-col items-center transition active:scale-125"
-        >
-          <div className={`p-2.5 lg:p-2 rounded-full ${isLiked ? 'text-red-500 bg-red-50' : 'text-gray-700 bg-gray-100'} hover:bg-gray-200 transition`}>
-            <HeartIcon className="w-7 h-7 lg:w-6 lg:h-6" />
+        <button onClick={() => requireAuth(onLike, 'like this video')} className="flex flex-col items-center">
+          <div className={`p-2.5 rounded-full ${isLiked ? 'bg-red-500/20 text-red-400' : 'bg-black/40 text-white'} backdrop-blur-sm transition`}>
+            <HeartIcon className="w-7 h-7" />
           </div>
-          <span className="text-xs font-bold mt-1 text-gray-700">{(video.likes / 1000).toFixed(1)}K</span>
+          <span className="text-xs font-bold mt-1 text-white drop-shadow">{(video.likes / 1000).toFixed(1)}K</span>
         </button>
 
-        <button 
-          onClick={() => requireAuth(() => {
-            showSuccess('Comment feature coming soon!');
-          }, 'comment on this video')}
-          className="flex flex-col items-center text-gray-700"
-        >
-          <div className="p-2.5 lg:p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-            <CommentIcon className="w-7 h-7 lg:w-6 lg:h-6" />
+        <button onClick={() => requireAuth(onComment, 'comment')} className="flex flex-col items-center">
+          <div className="p-2.5 rounded-full bg-black/40 text-white backdrop-blur-sm">
+            <CommentIcon className="w-7 h-7" />
           </div>
-          <span className="text-xs font-bold mt-1">{video.comments}</span>
+          <span className="text-xs font-bold mt-1 text-white drop-shadow">{video.comments}</span>
         </button>
 
-        <button className="flex flex-col items-center text-gray-700">
-          <div className="p-2.5 lg:p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition">
-            <ShareIcon className="w-7 h-7 lg:w-6 lg:h-6" />
+        <button className="flex flex-col items-center">
+          <div className="p-2.5 rounded-full bg-black/40 text-white backdrop-blur-sm">
+            <ShareIcon className="w-7 h-7" />
           </div>
-          <span className="text-xs font-bold mt-1">Share</span>
+          <span className="text-xs font-bold mt-1 text-white drop-shadow">Share</span>
         </button>
 
         {video.betEvent && (
-          <button 
-            onClick={() => requireAuth(() => {
-              setShowBetting(true);
-            }, 'place a bet')}
-            className="flex flex-col items-center text-purple-600 mt-3 lg:mt-2"
-          >
-            <div className="p-3 lg:p-2.5 rounded-full bg-purple-500 text-white shadow-xl shadow-purple-500/50 hover:bg-purple-600 transition">
-              <svg className="w-6 h-6 lg:w-5 lg:h-5" fill="currentColor" viewBox="0 0 24 24">
+          <button onClick={() => requireAuth(onBet, 'place a bet')} className="flex flex-col items-center mt-1">
+            <div className="p-3 rounded-full bg-pink-500 text-white shadow-lg shadow-pink-500/40 hover:bg-pink-600 transition">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
               </svg>
             </div>
-            <span className="text-[10px] font-black mt-1.5 bg-purple-100 text-purple-700 px-2 py-1 rounded-lg">BET LIVE</span>
+            <span className="text-[10px] font-black mt-1 text-pink-400">BET</span>
           </button>
         )}
       </div>
 
-      {/* Bottom Info Section */}
-      <div className="absolute left-4 bottom-24 lg:bottom-16 right-20 pointer-events-none">
-        <h4 className="text-white font-bold text-base sm:text-lg mb-1 drop-shadow-lg">@{video.creatorName}</h4>
-        <p className="text-white text-sm sm:text-base line-clamp-2 mb-2 drop-shadow-lg">{video.title}</p>
-        <p className="text-white/90 text-sm sm:text-base line-clamp-2 mb-2 drop-shadow-lg">{video.description}</p>
-        <div className="flex items-center space-x-2 text-white/80 text-xs sm:text-sm drop-shadow-lg">
-          <svg className="w-4 h-4 sm:w-4 sm:h-4 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-          <span className="truncate">Original audio - {video.creatorName}</span>
+      {/* Bottom info */}
+      <div className="absolute left-4 bottom-20 right-4 pointer-events-none">
+        <h4 className="text-white font-bold text-base mb-0.5 drop-shadow-lg">@{video.creatorName}</h4>
+        <p className="text-white text-sm font-semibold line-clamp-2 mb-1 drop-shadow-lg">{video.title}</p>
+        <p className="text-white/80 text-xs line-clamp-2 mb-1.5 drop-shadow-lg">{video.description}</p>
+        <div className="flex items-center gap-2 text-white/70 text-xs drop-shadow-lg">
+          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <span className="truncate">Original audio · {video.creatorName}</span>
         </div>
       </div>
 
-      {showBetting && video.betEvent && (
+      {/* Betting overlay */}
+      {showBettingOverlay && video.betEvent && (
         <div onClick={(e) => e.stopPropagation()}>
-          <BettingOverlay 
+          <BettingOverlay
             event={video.betEvent}
             user={user}
-            onClose={() => setShowBetting(false)}
+            onClose={onCloseBetting}
             onPlaceBet={async (optionId, amt) => {
               try {
                 await onPlaceEventBet(String(video.betEvent!.id), optionId, amt);
-                setShowBetting(false);
-              } catch (_) {
-                /* error toast shown by parent */
-              }
+                onCloseBetting();
+              } catch (_) {}
             }}
           />
         </div>
@@ -189,6 +174,83 @@ const VideoCard: React.FC<{
   );
 };
 
+// ─── Desktop Action Rail ─── rendered to the right of the video column
+const DesktopActionRail: React.FC<{
+  video: Video | null;
+  isLiked: boolean;
+  onLike: () => void;
+  onComment: () => void;
+  onBet: () => void;
+}> = ({ video, isLiked, onLike, onComment, onBet }) => {
+  const { requireAuth } = useAuth();
+
+  if (!video) return <div className="hidden lg:block w-16" />;
+
+  return (
+    <div className="hidden lg:flex flex-col items-center justify-center gap-5 pl-4 self-center">
+      {/* Avatar */}
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <img
+            src={video.creatorAvatar || 'https://picsum.photos/seed/avatar/200'}
+            className="w-12 h-12 rounded-full border-2 border-white/80 shadow-lg"
+            alt={video.creatorName}
+          />
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-pink-500 rounded-full p-0.5 shadow">
+            <svg className="w-3 h-3" fill="white" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Like */}
+      <button
+        onClick={() => requireAuth(onLike, 'like this video')}
+        className="flex flex-col items-center gap-1 group"
+      >
+        <div className={`p-3 rounded-full transition-all ${isLiked ? 'bg-red-500/20 text-red-400 scale-110' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+          <HeartIcon className="w-6 h-6" />
+        </div>
+        <span className="text-xs font-bold text-white/80">{(video.likes / 1000).toFixed(1)}K</span>
+      </button>
+
+      {/* Comment */}
+      <button
+        onClick={() => requireAuth(onComment, 'comment')}
+        className="flex flex-col items-center gap-1 group"
+      >
+        <div className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+          <CommentIcon className="w-6 h-6" />
+        </div>
+        <span className="text-xs font-bold text-white/80">{video.comments}</span>
+      </button>
+
+      {/* Share */}
+      <button className="flex flex-col items-center gap-1 group">
+        <div className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+          <ShareIcon className="w-6 h-6" />
+        </div>
+        <span className="text-xs font-bold text-white/80">Share</span>
+      </button>
+
+      {/* Bet */}
+      {video.betEvent && (
+        <button
+          onClick={() => requireAuth(onBet, 'place a bet')}
+          className="flex flex-col items-center gap-1 group mt-1"
+        >
+          <div className="p-3 rounded-full bg-pink-500 text-white shadow-lg shadow-pink-500/40 hover:bg-pink-600 transition-all">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+            </svg>
+          </div>
+          <span className="text-[10px] font-black text-pink-400">BET LIVE</span>
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ─── Feed ───────────────────────────────────────────────────────────────────
 const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
   const displayUser = user || MOCK_USER;
   const navigate = useNavigate();
@@ -196,18 +258,9 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleScroll = () => {
-    if (containerRef.current) {
-      const topNavbarHeight = 56; // Top navbar height
-      const bottomNavbarHeight = 55; // Bottom navbar height
-      const cardHeight = window.innerWidth < 1024 
-        ? window.innerHeight - topNavbarHeight - bottomNavbarHeight 
-        : window.innerHeight;
-      const scrollTop = containerRef.current.scrollTop;
-      const index = Math.round(scrollTop / cardHeight);
-      setActiveIndex(index);
-    }
-  };
+  // Per-video interaction state lifted to parent (needed by external action rail)
+  const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
+  const [bettingVideoId, setBettingVideoId] = useState<string | null>(null);
 
   const [containerHeight, setContainerHeight] = useState('100vh');
   const [cardHeight, setCardHeight] = useState('100vh');
@@ -215,23 +268,20 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
 
   useEffect(() => {
     const updateHeight = () => {
-      if (window.innerWidth < 1024) {
-        // Account for top navbar (approximately 56px) and bottom navbar (approximately 55px)
-        const topNavbarHeight = 56;
-        const bottomNavbarHeight = 55;
-        const totalNavbarHeight = topNavbarHeight + bottomNavbarHeight;
-        // Container should fill the space between navbars - positioned below top navbar
-        // Height accounts for both navbars, so content won't hide behind them
-        setContainerHeight(`calc(100vh - ${totalNavbarHeight}px)`);
-        // Each card should fill the full container height exactly
-        setCardHeight(`calc(100vh - ${totalNavbarHeight}px)`);
-        setTopOffset(`${topNavbarHeight}px`);
+      const isDesktop = window.innerWidth >= 1024;
+      if (isDesktop) {
+        // Sticky nav is in-flow — it already pushes content down, no marginTop needed.
+        // Height = viewport minus the sticky navbar height.
+        const available = window.innerHeight - 56;
+        setContainerHeight(`${available}px`);
+        setCardHeight(`${available}px`);
+        setTopOffset('0px');
       } else {
-        // Desktop: Account for top bar (56px)
-        const desktopTopBarHeight = 56;
-        setContainerHeight(`calc(100vh - ${desktopTopBarHeight}px)`);
-        setCardHeight(`calc(100vh - ${desktopTopBarHeight}px)`);
-        setTopOffset(`${desktopTopBarHeight}px`);
+        // Fixed nav (top 56px) + fixed bottom nav (55px) — need explicit marginTop.
+        const available = window.innerHeight - 56 - 55;
+        setContainerHeight(`${available}px`);
+        setCardHeight(`${available}px`);
+        setTopOffset('56px');
       }
     };
     updateHeight();
@@ -239,7 +289,15 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // Load feed from API when available, otherwise use mock
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const h = parseInt(cardHeight, 10) || window.innerHeight;
+      const index = Math.round(containerRef.current.scrollTop / h);
+      setActiveIndex(index);
+    }
+  };
+
+  // Feed data
   const [feedVideos, setFeedVideos] = useState<Video[] | null>(null);
   useEffect(() => {
     api.getFeedVideos()
@@ -258,17 +316,13 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
           comments: v.comments || 0,
           type: (v.video_type === 'short' ? 'short' : v.video_type === 'live' ? 'live' : 'long') as 'short' | 'long' | 'live',
           betMarkers: (v.bet_markers || []).map((m: any) => ({
-            id: String(m.id),
-            timestamp: m.timestamp,
-            question: m.question,
+            id: String(m.id), timestamp: m.timestamp, question: m.question,
             options: (m.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
-            totalPool: m.total_pool || 0,
-            participants: m.participants || 0,
+            totalPool: m.total_pool || 0, participants: m.participants || 0,
           })),
           ...(v.bet_event && {
             betEvent: {
-              id: String(v.bet_event.id),
-              question: v.bet_event.question,
+              id: String(v.bet_event.id), question: v.bet_event.question,
               options: (v.bet_event.options || []).map((o: any) => ({ id: String(o.id), text: o.text, odds: Number(o.odds) })),
               totalPool: v.bet_event.totalPool ?? 0,
               participants: v.bet_event.participants ?? 0,
@@ -281,120 +335,98 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
       .catch(() => setFeedVideos(null));
   }, []);
 
-  const videosToShow = (feedVideos && feedVideos.length > 0) ? feedVideos.slice(0, 6) : MOCK_VIDEOS.slice(0, 6);
+  const videosToShow = (feedVideos && feedVideos.length > 0)
+    ? feedVideos.slice(0, 20)
+    : MOCK_VIDEOS.slice(0, 6);
+
+  const activeVideo = videosToShow[activeIndex] ?? null;
+  const isActiveLiked = activeVideo ? likedVideos.has(activeVideo.id) : false;
+
+  const handleLike = (videoId: string) => {
+    setLikedVideos(prev => {
+      const next = new Set(prev);
+      if (next.has(videoId)) { next.delete(videoId); showSuccess('Removed from likes'); }
+      else { next.add(videoId); showSuccess('Liked!'); }
+      return next;
+    });
+  };
 
   const [activeNavItem, setActiveNavItem] = useState('For You');
 
   return (
     <div className="w-full min-h-screen bg-black relative">
-      {/* Desktop Top Bar - YouTube Style */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] bg-black/60 backdrop-blur-xl border-b border-gray-200 h-16 items-center px-4 w-full">
-        {/* Left Section - Hamburger + Logo when sidebar is closed */}
-        <div className="flex items-center space-x-3 flex-shrink-0">
+
+      {/* ── Desktop Top Navbar ── */}
+      <div className="hidden lg:flex sticky top-0 z-[9998] bg-black/70 backdrop-blur-xl border-b border-white/10 h-14 items-center px-3 gap-2 w-full min-w-0">
+
+        {/* Left: hamburger + logo */}
+        <div className="flex items-center gap-2 shrink-0">
           {!sidebarOpen && (
-            <>
-              <button
-                onClick={onToggleSidebar}
-                className="p-2 rounded-full hover:bg-gray-100 transition"
-                aria-label="Open sidebar"
-              >
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center space-x-2 hover:opacity-80 transition"
-              >
-                <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                  <span className="text-xl font-black italic text-white">V</span>
-                </div>
-                <span className="text-xl font-black tracking-tight text-gray-900 hidden xl:inline">
-                  VPULSE
-                </span>
-              </button>
-            </>
+            <button onClick={onToggleSidebar} className="p-2 rounded-lg hover:bg-white/10 transition" aria-label="Open sidebar">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           )}
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 hover:opacity-80 transition shrink-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-fuchsia-500 to-violet-600 rounded-lg flex items-center justify-center shadow-md">
+              <span className="text-base font-black italic text-white">V</span>
+            </div>
+            <span className="text-base font-black tracking-tight text-white hidden xl:inline">VPULSE</span>
+          </button>
         </div>
 
-        {/* Center Section - Search */}
-        <div className="flex-1 flex items-center justify-center max-w-3xl mx-8">
-          <form className="w-full flex items-center" onSubmit={(e) => { e.preventDefault(); }}>
-            <div className="flex-1 relative">
+        {/* Center: search — flex-1 with min-w-0 so it compresses properly */}
+        <div className="flex-1 min-w-0 flex items-center justify-center">
+          <div className="flex items-center w-full max-w-xl min-w-0">
+            <div className="relative flex-1 min-w-0">
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full px-4 py-2.5 pl-11 pr-4 border border-gray-300 rounded-l-full focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-sm transition"
+                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/10 border border-white/20 rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-fuchsia-500 transition"
               />
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
-            <button
-              type="submit"
-              className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 border border-l-0 border-gray-300 rounded-r-full transition flex items-center"
-              aria-label="Search"
-            >
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" className="px-4 py-2 bg-white/10 border border-l-0 border-white/20 rounded-r-full text-white/60 hover:text-white hover:bg-white/20 transition shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-          </form>
+          </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center space-x-2 flex-shrink-0">
-          {/* Voice Search Button */}
-          <button
-            className="p-2.5 rounded-full hover:bg-gray-100 transition"
-            aria-label="Search with your voice"
-            title="Search with your voice"
-          >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Right: actions */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button className="p-2 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white hidden xl:flex" aria-label="Voice search">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </button>
 
-          {/* Create Button */}
-          <button
-            onClick={() => navigate('/create')}
-            className="px-4 py-2 flex items-center space-x-2 rounded-full hover:bg-gray-100 transition"
-            aria-label="Create"
-          >
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button onClick={() => navigate('/create')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition text-sm font-medium shrink-0">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span className="text-sm font-medium text-gray-700">Create</span>
+            <span className="hidden xl:inline">Create</span>
           </button>
 
-          {/* Notifications Button */}
-          <button
-            className="p-2.5 rounded-full hover:bg-gray-100 transition relative"
-            aria-label="Notifications"
-          >
-            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button className="p-2 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white relative" aria-label="Notifications">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></div>
+            <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-black"></div>
           </button>
 
-          {/* Profile Avatar Button */}
-          <button
-            onClick={() => navigate('/profile')}
-            className="p-0.5 rounded-full hover:ring-2 hover:ring-gray-200 transition"
-            aria-label="Account menu"
-          >
+          <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-fuchsia-500/50 transition" aria-label="Profile">
             {user ? (
-              <img
-                src={user.avatar}
-                alt="Avatar"
-                className="w-9 h-9 rounded-full"
-              />
+              <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
-                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </div>
@@ -403,130 +435,104 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
         </div>
       </div>
 
-      {/* Mobile Sticky Top Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-[9998] bg-black/70 backdrop-blur-xl border-b border-gray-200 lg:hidden">
-        <div className="relative flex items-center">
-          {/* Live Icon - Index 0 (Fixed) */}
+      {/* ── Mobile Sticky Top Navbar ── */}
+      <div className="fixed top-0 left-0 right-0 z-[9998] bg-black/70 backdrop-blur-xl border-b border-white/10 lg:hidden">
+        <div className="flex items-center">
           <button
             onClick={() => setActiveNavItem('Live')}
-            className={`flex-shrink-0 px-4 py-3 flex items-center space-x-2 transition ${
-              activeNavItem === 'Live' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-            }`}
+            className={`shrink-0 px-3 py-3 flex items-center gap-1.5 transition ${activeNavItem === 'Live' ? 'text-pink-400 border-b-2 border-pink-400' : 'text-white/60'}`}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
             <span className="font-bold text-sm whitespace-nowrap">Live</span>
           </button>
 
-          {/* Scrollable Nav Items Container */}
-          <div className="flex items-center overflow-x-auto scrollbar-hide flex-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {/* Stem - Index 1 */}
-            <button
-              onClick={() => setActiveNavItem('Stem')}
-              className={`flex-shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
-                activeNavItem === 'Stem' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-              }`}
-            >
-              Stem
-            </button>
-
-            {/* Explore - Index 2 */}
-            <button
-              onClick={() => setActiveNavItem('Explore')}
-              className={`flex-shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
-                activeNavItem === 'Explore' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-              }`}
-            >
-              Explore
-            </button>
-
-            {/* Following - Index 3 */}
-            <button
-              onClick={() => setActiveNavItem('Following')}
-              className={`flex-shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
-                activeNavItem === 'Following' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-              }`}
-            >
-              Following
-            </button>
-
-            {/* Friend - Index 4 */}
-            <button
-              onClick={() => setActiveNavItem('Friend')}
-              className={`flex-shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
-                activeNavItem === 'Friend' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-              }`}
-            >
-              Friend
-            </button>
-
-            {/* For You - Index 5 */}
-            <button
-              onClick={() => setActiveNavItem('For You')}
-              className={`flex-shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
-                activeNavItem === 'For You' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-600'
-              }`}
-            >
-              For You
-            </button>
+          <div className="flex items-center overflow-x-auto scrollbar-hide flex-1" style={{ scrollbarWidth: 'none' }}>
+            {['Stem', 'Explore', 'Following', 'Friend', 'For You'].map(item => (
+              <button
+                key={item}
+                onClick={() => setActiveNavItem(item)}
+                className={`shrink-0 px-4 py-3 font-bold text-sm whitespace-nowrap transition ${
+                  activeNavItem === item ? 'text-pink-400 border-b-2 border-pink-400' : 'text-white/60'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
 
-          {/* Search Icon - Extreme Right (Fixed/Sticky) */}
-          <div className="flex-shrink-0 px-4 py-3 border-l border-gray-200 bg-white z-10">
-        <button
-              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-          aria-label="Search"
-        >
-              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
+          <div className="shrink-0 px-3 py-3 border-l border-white/10">
+            <button className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Search">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Content - Vertical Scroll with Snap */}
-      <div 
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="w-full overflow-y-scroll snap-y snap-mandatory bg-black scrollbar-hide"
-        style={{ 
-          height: containerHeight,
-          maxHeight: containerHeight,
-          marginTop: topOffset,
-          scrollBehavior: 'smooth',
-          scrollSnapType: 'y mandatory',
-          scrollSnapStop: 'always',
-          WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain',
-          scrollPaddingTop: '0px',
-          willChange: 'scroll-position'
-        }}
+      {/* ── Main: phone-width column + desktop action rail side-by-side ── */}
+      <div
+        className="w-full flex items-start justify-center bg-black"
+        style={{ height: containerHeight, marginTop: topOffset }}
       >
-        {videosToShow.map((video, i) => (
-          <VideoCard
-            key={video.id}
-            video={video}
-            isActive={activeIndex === i}
-            cardHeight={cardHeight}
-            user={displayUser}
-            onPlaceEventBet={async (eventId, optionId, amt) => {
-              try {
-                await api.placeEventBet(eventId, optionId, amt);
-                showSuccess(`Bet placed: $${amt} on option`);
-              } catch (err: any) {
-                showError(err.message || 'Failed to place bet');
-              }
-            }}
-          />
-        ))}
-        <div className="w-full flex items-center justify-center bg-gray-50 snap-start" style={{ height: cardHeight, minHeight: cardHeight }}>
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading more epic moments...</p>
+        {/* Video scroll column */}
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="w-full lg:w-[390px] lg:shrink-0 h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black lg:rounded-2xl lg:ring-1 lg:ring-white/10 lg:shadow-[0_0_60px_rgba(0,0,0,0.7)]"
+          style={{
+            scrollSnapType: 'y mandatory',
+            scrollSnapStop: 'always',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
+          }}
+        >
+          {videosToShow.map((video, i) => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              isActive={activeIndex === i}
+              cardHeight={cardHeight}
+              isLiked={likedVideos.has(video.id)}
+              onLike={() => handleLike(video.id)}
+              onComment={() => showSuccess('Comment feature coming soon!')}
+              onBet={() => setBettingVideoId(video.id)}
+              showBettingOverlay={bettingVideoId === video.id}
+              onCloseBetting={() => setBettingVideoId(null)}
+              onPlaceEventBet={async (eventId, optionId, amt) => {
+                try {
+                  await api.placeEventBet(eventId, optionId, amt);
+                  showSuccess(`Bet placed: $${amt}`);
+                } catch (err: any) {
+                  showError(err.message || 'Failed to place bet');
+                }
+              }}
+              user={displayUser}
+            />
+          ))}
+
+          {/* Loading sentinel */}
+          <div
+            className="w-full flex items-center justify-center bg-black snap-start"
+            style={{ height: cardHeight, minHeight: cardHeight }}
+          >
+            <div className="text-center">
+              <div className="w-14 h-14 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+              <p className="text-white/50 text-sm font-medium">Loading more...</p>
+            </div>
           </div>
         </div>
+
+        {/* Desktop-only action rail — outside the video column */}
+        <DesktopActionRail
+          video={activeVideo}
+          isLiked={isActiveLiked}
+          onLike={() => activeVideo && handleLike(activeVideo.id)}
+          onComment={() => showSuccess('Comment feature coming soon!')}
+          onBet={() => activeVideo && setBettingVideoId(activeVideo.id)}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { Video } from '../types';
 import { api } from '../services/api';
 
 interface HomeLongVideosProps {
+  user?: any;
   onToggleSidebar?: () => void;
   sidebarOpen?: boolean;
 }
@@ -29,7 +30,7 @@ const formatViews = (views: number) => {
   return `${views} views`;
 };
 
-const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ onToggleSidebar, sidebarOpen = true }) => {
+const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
   const navigate = useNavigate();
   const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,77 +49,117 @@ const HomeLongVideos: React.FC<HomeLongVideosProps> = ({ onToggleSidebar, sideba
   );
 
   return (
-    <div className="w-full min-h-screen">
-      {/* Desktop Top Bar */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] bg-black/60 backdrop-blur-xl border-b border-gray-200 h-16 items-center px-4 w-full">
-        <div className="flex items-center space-x-3 flex-shrink-0">
-          {!sidebarOpen && (
-            <button
-              onClick={onToggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition"
-              aria-label="Open sidebar"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+    <div className="w-full min-h-screen bg-neon-base">
+      {/* ── Desktop Top Bar ── */}
+      <div className="hidden lg:flex sticky top-0 z-[9998] h-14 items-center gap-2 px-3 bg-neon-base/95 backdrop-blur-md border-b border-white/[0.08] shadow-neon-line w-full">
+
+        {/* Left: hamburger when sidebar closed */}
+        {!sidebarOpen && (
+          <button onClick={onToggleSidebar} className="p-2 rounded-lg hover:bg-white/10 transition shrink-0" aria-label="Open sidebar">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
+
+        {/* Center: search */}
+        <div className="flex-1 min-w-0 flex items-center justify-center">
+          <div className="flex items-center w-full max-w-xl min-w-0">
+            <div className="relative flex-1 min-w-0">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/[0.07] border border-white/[0.12] rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-neon-pink/55 transition duration-200"
+              />
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            <button className="px-4 py-2 bg-white/[0.07] border border-l-0 border-white/[0.12] rounded-r-full text-white/60 hover:text-white hover:bg-white/[0.12] transition shrink-0">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </button>
-          )}
-
-          <button onClick={() => navigate('/')} className="flex items-center space-x-2 hover:opacity-80 transition">
-            <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-xl font-black italic text-white">V</span>
-            </div>
-            <span className="text-xl font-black tracking-tight text-gray-900 hidden md:inline">VPULSE</span>
-          </button>
+          </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-6">
-          <div className="max-w-4xl w-full">
-            <h1 className="text-base font-black text-gray-900">Home</h1>
-            <p className="text-xs text-gray-500">All long videos uploaded by users</p>
-          </div>
+        {/* Right: create + notifications + profile/login */}
+        <div className="flex items-center gap-1 shrink-0">
+          <button onClick={() => navigate('/create')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.15] text-white/80 hover:bg-white/10 hover:text-white transition text-sm font-medium">
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="hidden xl:inline">Create</span>
+          </button>
+
+          <button className="p-2 rounded-lg hover:bg-white/10 transition text-white/70 hover:text-white relative">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+
+          {user ? (
+            <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-neon-pink/50 transition duration-200 ml-1">
+              <img src={user.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+            </button>
+          ) : (
+            <button onClick={() => navigate('/login')} className="ml-1 px-4 py-1.5 rounded-full border-2 border-neon-pink text-neon-pink font-bold text-sm hover:bg-neon-pink/10 transition duration-200 shadow-[0_0_16px_rgba(236,72,153,0.15)]">
+              Log in
+            </button>
+          )}
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         {isLoading ? (
-          <div className="w-full flex items-center justify-center py-16">
+          <div className="w-full flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-gray-500 font-bold">Loading videos...</p>
+              <div className="w-12 h-12 border-4 border-neon-pink border-t-transparent rounded-full animate-spin mx-auto mb-4 shadow-[0_0_20px_rgba(236,72,153,0.25)]" />
+              <p className="text-white/50 font-semibold">Loading videos…</p>
             </div>
           </div>
         ) : longVideos.length === 0 ? (
-          <div className="neon-surface p-10 text-center">
-            <p className="text-gray-500 font-bold">No long videos yet.</p>
-            <button
-              className="mt-4 px-5 py-2.5 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
-              onClick={() => navigate('/upload')}
-            >
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="text-white/40 font-semibold mb-4">No videos yet. Be the first to upload!</p>
+            <button onClick={() => navigate('/upload')} className="px-5 py-2.5 bg-neon-pink text-white rounded-full font-bold text-sm hover:bg-neon-pink-hover transition duration-200 shadow-neon-pink/35">
               Upload a video
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {longVideos.map((video) => (
               <div
                 key={video.id}
-                className="cursor-pointer group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                className="cursor-pointer group"
                 onClick={() => navigate(`/watch/${video.id}`)}
               >
-                <div className="relative aspect-video bg-gray-200">
+                {/* Thumbnail */}
+                <div className="relative aspect-video bg-white/5 rounded-xl overflow-hidden mb-3">
                   <img
                     src={video.thumbnail || 'https://picsum.photos/seed/video/800/400'}
                     alt={video.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="p-3">
-                  <h3 className="font-bold text-sm text-gray-900 mb-1 line-clamp-2 group-hover:text-purple-600 transition">
-                    {video.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 mb-1">{video.creatorName}</p>
-                  <p className="text-xs text-gray-500">{formatViews(video.views)}</p>
+                {/* Info row */}
+                <div className="flex gap-3">
+                  <div className="w-9 h-9 rounded-full bg-white/10 shrink-0 overflow-hidden">
+                    <img src={video.creatorAvatar || 'https://picsum.photos/seed/av/200'} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm text-white line-clamp-2 leading-snug mb-1 group-hover:text-neon-pink transition duration-200">
+                      {video.title || 'Untitled'}
+                    </h3>
+                    <p className="text-xs text-white/50">{video.creatorName}</p>
+                    <p className="text-xs text-white/35">{formatViews(video.views)}</p>
+                  </div>
                 </div>
               </div>
             ))}

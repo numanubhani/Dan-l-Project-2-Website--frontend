@@ -21,7 +21,7 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
           <p className="text-gray-600 font-medium mb-4">Please log in to access creator dashboard</p>
           <button 
             onClick={() => window.location.href = '/login'}
-            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+            className="px-6 py-3 bg-gradient-to-r from-neon-violet to-neon-pink text-white rounded-lg font-bold hover:brightness-110 shadow-neon-pink/30 transition duration-200"
           >
             Go to Login
           </button>
@@ -61,7 +61,7 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
         <div className="flex gap-4">
           <button 
             onClick={() => setShowUpload(true)}
-            className="bg-purple-400 hover:bg-purple-500 text-white font-bold px-6 py-3 rounded-2xl flex items-center shadow-lg shadow-purple-400/20 transition-all active:scale-95"
+            className="bg-gradient-to-r from-neon-violet to-neon-pink hover:brightness-110 text-white font-bold px-6 py-3 rounded-2xl flex items-center shadow-lg shadow-neon-pink/25 transition-all duration-200 active:scale-95"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
             Upload Video
@@ -89,7 +89,7 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
               {uploadProgress > 0 ? (
                 <div className="py-20 text-center">
                   <div className="w-full bg-zinc-800 rounded-full h-4 mb-4 overflow-hidden">
-                    <div className="bg-purple-400 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                    <div className="bg-gradient-to-r from-neon-violet to-neon-cyan h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                   </div>
                   <p className="text-zinc-400 font-bold">Uploading... {uploadProgress}%</p>
                 </div>
@@ -131,7 +131,7 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
                     </div>
                   </div>
 
-                  <button type="submit" className="w-full py-4 bg-purple-400 hover:bg-purple-500 rounded-2xl font-black text-lg transition-all shadow-xl shadow-purple-400/20">
+                  <button type="submit" className="w-full py-4 bg-gradient-to-r from-neon-violet to-neon-pink hover:brightness-110 rounded-2xl font-black text-lg transition-all duration-200 shadow-xl shadow-neon-pink/25">
                     Submit Content
                   </button>
                 </>
@@ -148,14 +148,14 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="name" stroke="#71717a" />
-                <YAxis stroke="#71717a" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272f" />
+                <XAxis dataKey="name" stroke="#a1a1aa" />
+                <YAxis stroke="#a1a1aa" />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px' }}
-                  itemStyle={{ color: '#a78bfa' }}
+                  contentStyle={{ backgroundColor: '#111118', border: '1px solid rgba(168,85,247,0.25)', borderRadius: '12px' }}
+                  itemStyle={{ color: '#e9d5ff' }}
                 />
-                <Line type="monotone" dataKey="earnings" stroke="#8b5cf6" strokeWidth={4} dot={{ r: 6 }} activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="earnings" stroke="#a855f7" strokeWidth={4} dot={{ r: 6 }} activeDot={{ r: 8 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -166,13 +166,13 @@ const CreatorDashboard: React.FC<{ user: User | null }> = ({ user }) => {
           <div className="h-80 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="name" stroke="#71717a" />
-                <YAxis stroke="#71717a" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272f" />
+                <XAxis dataKey="name" stroke="#a1a1aa" />
+                <YAxis stroke="#a1a1aa" />
                 <Tooltip 
-                   contentStyle={{ backgroundColor: '#18181b', border: '1px solid #3f3f46', borderRadius: '12px' }}
+                   contentStyle={{ backgroundColor: '#111118', border: '1px solid rgba(34,211,238,0.2)', borderRadius: '12px' }}
                 />
-                <Bar dataKey="bets" fill="#a78bfa" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="bets" fill="#22d3ee" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
