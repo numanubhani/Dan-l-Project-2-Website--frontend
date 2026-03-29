@@ -77,7 +77,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   return (
     /* Full-page background matching TikTok dark theme */
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-[#161823] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="w-full max-w-[420px] bg-neon-panel rounded-2xl overflow-hidden shadow-2xl shadow-neon-violet/15 border border-white/[0.08] flex flex-col">
 
         {/* Back button (form view) */}
         <div className="relative">
@@ -206,7 +206,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white font-bold text-base tracking-wide transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-2 py-3 rounded-full bg-neon-pink hover:bg-neon-pink-hover text-white font-bold text-base tracking-wide transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}
               </button>
@@ -227,14 +227,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             {mode === 'login' ? (
               <>
                 Don't have an account?{' '}
-                <button onClick={() => switchMode('signup')} className="text-[#FE2C55] font-semibold hover:underline">
+                <button onClick={() => switchMode('signup')} className="text-neon-pink font-semibold hover:underline">
                   Sign up
                 </button>
               </>
             ) : (
               <>
                 Already have an account?{' '}
-                <button onClick={() => switchMode('login')} className="text-[#FE2C55] font-semibold hover:underline">
+                <button onClick={() => switchMode('login')} className="text-neon-pink font-semibold hover:underline">
                   Log in
                 </button>
               </>
@@ -256,7 +256,7 @@ const OptionButton: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className="w-full flex items-center gap-4 px-5 py-3.5 bg-[#2a2a3a] hover:bg-[#33334a] border border-white/10 rounded-xl text-white font-semibold text-sm transition"
+    className="w-full flex items-center gap-4 px-5 py-3.5 bg-neon-elevated hover:bg-neon-ink border border-white/10 rounded-xl text-white font-semibold text-sm transition"
   >
     <span className="w-6 h-6 flex items-center justify-center shrink-0 text-white/80">{icon}</span>
     <span className="flex-1 text-center">{label}</span>
@@ -279,7 +279,7 @@ const FormInput: React.FC<{
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="w-full px-4 py-3 bg-[#2a2a3a] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#FE2C55] focus:ring-1 focus:ring-[#FE2C55] transition"
+      className="w-full px-4 py-3 bg-neon-elevated border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-neon-pink/70 focus:ring-1 focus:ring-neon-violet/50 transition duration-200"
     />
   </div>
 );

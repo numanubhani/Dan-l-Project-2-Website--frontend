@@ -91,9 +91,9 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0f0f0f]">
+    <div className="w-full min-h-screen bg-neon-base">
       {/* ── Desktop Top Bar ── */}
-      <div className="hidden lg:flex sticky top-0 z-[9998] h-14 items-center gap-2 px-3 bg-[#0f0f0f] border-b border-white/[0.08] w-full">
+      <div className="hidden lg:flex sticky top-0 z-[9998] h-14 items-center gap-2 px-3 bg-neon-base/95 backdrop-blur-md border-b border-white/[0.08] shadow-neon-line w-full">
 
         {/* Left: hamburger when sidebar closed */}
         {!sidebarOpen && (
@@ -111,7 +111,7 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/[0.07] border border-white/[0.12] rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-[#FE2C55]/60 transition"
+                className="w-full min-w-0 pl-10 pr-3 py-2 bg-white/[0.07] border border-white/[0.12] rounded-l-full text-white text-sm placeholder-white/40 focus:outline-none focus:border-neon-pink/55 transition duration-200"
               />
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                 <svg className="h-4 w-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,15 +140,15 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
-            <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#FE2C55] rounded-full ring-2 ring-[#0f0f0f]" />
+            <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-neon-pink rounded-full ring-2 ring-neon-base shadow-[0_0_10px_rgba(236,72,153,0.45)]" />
           </button>
 
           {user ? (
-            <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-[#FE2C55]/50 transition ml-1">
+            <button onClick={() => navigate('/profile')} className="p-0.5 rounded-full hover:ring-2 hover:ring-neon-pink/50 transition duration-200 ml-1">
               <img src={user.avatar} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
             </button>
           ) : (
-            <button onClick={() => navigate('/login')} className="ml-1 px-4 py-1.5 rounded-full border-2 border-[#FE2C55] text-[#FE2C55] font-bold text-sm hover:bg-[#FE2C55]/10 transition">
+            <button onClick={() => navigate('/login')} className="ml-1 px-4 py-1.5 rounded-full border-2 border-neon-pink text-neon-pink font-bold text-sm hover:bg-neon-pink/10 transition duration-200 shadow-[0_0_16px_rgba(236,72,153,0.15)]">
               Log in
             </button>
           )}

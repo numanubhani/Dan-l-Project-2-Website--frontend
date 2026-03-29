@@ -75,12 +75,12 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
   const remaining = MIN_SELECTIONS - selected.size;
 
   const modal = (
-    <div className="fixed inset-0 z-[10000] bg-[#0e0e0e] flex flex-col">
+    <div className="fixed inset-0 z-[10000] bg-neon-base flex flex-col">
 
       {/* ── Header ── */}
       <div className="shrink-0 px-5 pt-10 pb-5 text-center border-b border-white/[0.06]">
         {/* Logo */}
-        <div className="w-11 h-11 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#FE2C55]/30">
+        <div className="w-11 h-11 bg-gradient-to-br from-neon-violet to-neon-cyan rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-neon-violet/35">
           <span className="text-xl font-black italic text-white leading-none">V</span>
         </div>
 
@@ -90,7 +90,7 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
 
         <p className="text-[13px] text-white/45 mt-2">
           {canContinue
-            ? <span><span className="text-[#FE2C55] font-semibold">{selected.size} selected</span> — tap Continue when ready</span>
+            ? <span><span className="text-neon-pink font-semibold">{selected.size} selected</span> — tap Continue when ready</span>
             : <>Select <span className="text-white/70 font-semibold">{MIN_SELECTIONS} or more</span> to personalise your feed</>
           }
         </p>
@@ -107,7 +107,7 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
                 onClick={() => toggle(cat.id)}
                 className={`relative flex flex-col items-center gap-2.5 p-2.5 rounded-2xl border-2 transition-all duration-150 active:scale-95 select-none ${
                   isSelected
-                    ? 'border-[#FE2C55] bg-[#FE2C55]/[0.12] scale-[1.03]'
+                    ? 'border-neon-pink bg-neon-pink/12 shadow-[0_0_18px_rgba(236,72,153,0.18)] scale-[1.03]'
                     : 'border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20'
                 }`}
               >
@@ -129,7 +129,7 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
 
                 {/* Checkmark badge */}
                 {isSelected && (
-                  <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-[#FE2C55] rounded-full flex items-center justify-center shadow-md pointer-events-none">
+                  <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-neon-pink rounded-full flex items-center justify-center shadow-md shadow-neon-pink/40 pointer-events-none">
                     <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3.5" d="M5 13l4 4L19 7" />
                     </svg>
@@ -149,7 +149,7 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
             disabled={!canContinue}
             className={`w-full py-3.5 rounded-full font-bold text-[15px] tracking-wide transition-all duration-200 ${
               canContinue
-                ? 'bg-[#FE2C55] hover:bg-[#e6254b] text-white shadow-lg shadow-[#FE2C55]/25'
+                ? 'bg-neon-pink hover:bg-neon-pink-hover text-white shadow-lg shadow-neon-pink/35'
                 : 'bg-white/[0.08] text-white/30 cursor-not-allowed'
             }`}
           >

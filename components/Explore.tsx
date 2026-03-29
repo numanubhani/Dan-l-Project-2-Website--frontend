@@ -42,7 +42,7 @@ const EyeIcon = () => (
 );
 
 const VerifiedBadge = () => (
-  <svg className="w-3 h-3 text-[#20d5ec] shrink-0" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="w-3 h-3 text-neon-cyan shrink-0" viewBox="0 0 24 24" fill="currentColor">
     <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
   </svg>
 );
@@ -91,19 +91,19 @@ const ExploreCard: React.FC<{ post: ExplorePost }> = ({ post }) => {
 
   return (
     <article className="group flex min-w-0 cursor-pointer flex-col">
-      <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-[#111] transition-all duration-300 hover:border-white/[0.14] hover:shadow-2xl hover:shadow-black/60 sm:rounded-2xl">
+      <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-neon-surface transition-all duration-200 hover:border-neon-violet/25 hover:shadow-card-hover sm:rounded-2xl">
 
         {/* Thumbnail — fixed aspect, fills cell width */}
         <div className={`relative w-full shrink-0 overflow-hidden ${THUMB_ASPECT}`}>
 
           {/* Skeleton shimmer while image loads */}
           {!imgLoaded && !imgError && (
-            <div className="absolute inset-0 bg-[#1c1c1c] animate-pulse" />
+            <div className="absolute inset-0 bg-neon-ink animate-pulse" />
           )}
 
           {/* Error fallback */}
           {imgError && (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] to-[#16213e] flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-neon-panel to-neon-elevated flex items-center justify-center">
               <VideoIcon />
             </div>
           )}
@@ -125,7 +125,7 @@ const ExploreCard: React.FC<{ post: ExplorePost }> = ({ post }) => {
 
           {/* Trending badge — top left */}
           {post.trending && (
-            <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-[#FE2C55] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md tracking-wide uppercase">
+            <div className="absolute top-2 left-2 flex items-center gap-0.5 bg-neon-pink text-white text-[9px] font-black px-1.5 py-0.5 rounded-md tracking-wide uppercase">
               🔥 Hot
             </div>
           )}
@@ -179,7 +179,7 @@ const ExploreCard: React.FC<{ post: ExplorePost }> = ({ post }) => {
             {post.caption}
           </p>
 
-          <p className="line-clamp-1 min-h-[0.875rem] text-[10px] font-medium leading-tight text-[#FE2C55]/75">
+          <p className="line-clamp-1 min-h-[0.875rem] text-[10px] font-medium leading-tight text-neon-pink/75">
             {post.hashtags.length > 0 ? post.hashtags.slice(0, 2).join(' ') : '\u00a0'}
           </p>
         </div>
@@ -192,8 +192,8 @@ const ExploreCard: React.FC<{ post: ExplorePost }> = ({ post }) => {
 
 const SkeletonCard: React.FC = () => (
   <div className="flex min-w-0 flex-col">
-    <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-[#111] sm:rounded-2xl">
-      <div className={`${THUMB_ASPECT} w-full shrink-0 bg-[#1c1c1c] animate-pulse`} />
+    <div className="flex flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-neon-surface sm:rounded-2xl">
+      <div className={`${THUMB_ASPECT} w-full shrink-0 bg-neon-ink animate-pulse`} />
       <div className="flex shrink-0 flex-col gap-1 px-2.5 pb-2.5 pt-2">
         <div className="flex min-h-[1.25rem] items-center gap-1.5">
           <div className="h-5 w-5 shrink-0 rounded-full bg-white/[0.08] animate-pulse" />
@@ -308,9 +308,9 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeId, onSel
               ref={el => { btnRefs.current[cat.id] = el; }}
               onClick={() => onSelect(cat.id)}
               aria-pressed={active}
-              className={`shrink-0 px-3.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FE2C55] focus-visible:ring-offset-2 focus-visible:ring-offset-[#121212] ${
+              className={`shrink-0 px-3.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neon-base ${
                 active
-                  ? 'bg-white text-black shadow-md shadow-white/10'
+                  ? 'bg-gradient-to-r from-neon-violet/92 to-neon-pink/88 text-white shadow-md shadow-neon-pink/35'
                   : 'bg-white/[0.07] text-white/65 hover:bg-white/[0.13] hover:text-white'
               }`}
             >
@@ -320,8 +320,8 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeId, onSel
         })}
       </div>
       {/* Right-edge fade affordance */}
-      <div className="absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-[#121212] to-transparent pointer-events-none" aria-hidden />
-      <div className="absolute left-0 inset-y-0 w-4 bg-gradient-to-r from-[#121212] to-transparent pointer-events-none" aria-hidden />
+      <div className="absolute right-0 inset-y-0 w-10 bg-gradient-to-l from-neon-base to-transparent pointer-events-none" aria-hidden />
+      <div className="absolute left-0 inset-y-0 w-4 bg-gradient-to-r from-neon-base to-transparent pointer-events-none" aria-hidden />
     </div>
   );
 };
@@ -359,7 +359,7 @@ const ExploreTopBar: React.FC<ExploreTopBarProps> = ({
   }, [onSearchChange]);
 
   return (
-    <div className="sticky top-0 z-10 shrink-0 bg-[#121212]/95 backdrop-blur-md border-b border-white/[0.06]">
+    <div className="sticky top-0 z-10 shrink-0 bg-neon-base/92 backdrop-blur-md border-b border-white/[0.06] shadow-neon-line">
       {/* Toolbar: lives only in main content — no app-level logo (sidebar owns VPULSE) */}
       <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 min-h-[3.5rem] min-w-0">
 
@@ -456,7 +456,7 @@ const ExploreTopBar: React.FC<ExploreTopBarProps> = ({
                   type="button"
                   onClick={() => onNavigate('/profile')}
                   aria-label="Go to profile"
-                  className="w-8 h-8 ml-1 rounded-full overflow-hidden ring-2 ring-white/20 hover:ring-[#FE2C55]/60 transition-all shrink-0"
+                  className="w-8 h-8 ml-1 rounded-full overflow-hidden ring-2 ring-white/20 hover:ring-neon-pink/60 transition-all shrink-0"
                 >
                   <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 </button>
@@ -464,7 +464,7 @@ const ExploreTopBar: React.FC<ExploreTopBarProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigate('/login')}
-                  className="ml-1 px-3 py-1.5 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white text-[11px] sm:text-[12px] font-bold transition shrink-0"
+                  className="ml-1 px-3 py-1.5 rounded-full bg-neon-pink hover:bg-neon-pink-hover text-white text-[11px] sm:text-[12px] font-bold transition shrink-0"
                 >
                   Log in
                 </button>
@@ -534,7 +534,7 @@ const ExplorePage: React.FC<ExplorePageProps> = ({
   };
 
   return (
-    <div className="flex flex-col min-h-full w-full min-w-0 max-w-full box-border overflow-x-hidden bg-[#121212] isolate">
+    <div className="flex flex-col min-h-full w-full min-w-0 max-w-full box-border overflow-x-hidden bg-neon-base isolate">
       <ExploreTopBar
         categories={EXPLORE_CATEGORIES}
         activeCategory={activeCategory}

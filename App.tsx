@@ -147,7 +147,7 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/40 mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-neon-violet to-neon-pink rounded-xl flex items-center justify-center shadow-lg shadow-neon-violet/45 mx-auto mb-4">
             <span className="text-3xl font-black italic text-white">V</span>
           </div>
           <p className="text-gray-600 font-bold">Loading...</p>
@@ -170,11 +170,11 @@ const AppContent: React.FC = () => {
         Root: fixed viewport height, no overflow — each zone scrolls independently.
         Sidebar is fixed (out of flow); main gets padding-left to match.
       */}
-      <div className="h-screen overflow-hidden bg-[#121212]">
+      <div className="h-screen overflow-hidden bg-neon-base">
 
       {/* ── Desktop Sidebar ── fixed, never in flex flow */}
       <nav
-        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-[9999] w-52 bg-[#121212] border-r border-white/[0.08] transition-transform duration-300 ease-out ${
+        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-[9999] w-52 bg-neon-base/98 backdrop-blur-md border-r border-white/[0.06] shadow-[inset_-1px_0_0_rgba(168,85,247,0.12)] transition-transform duration-300 ease-out ${
           showSidebar ? 'translate-x-0' : '-translate-x-full pointer-events-none'
         }`}
         aria-hidden={!showSidebar}
@@ -185,7 +185,7 @@ const AppContent: React.FC = () => {
             onClick={() => navigate('/')}
             className="flex items-center gap-2 rounded-lg px-1 py-1 hover:bg-white/5 transition w-full"
           >
-            <div className="w-8 h-8 shrink-0 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-lg flex items-center justify-center shadow-md">
+            <div className="w-8 h-8 shrink-0 bg-gradient-to-br from-neon-violet to-neon-cyan rounded-lg flex items-center justify-center shadow-md shadow-neon-violet/35">
               <span className="text-base font-black italic text-white leading-none">V</span>
             </div>
             <span className="text-[17px] font-black tracking-tight text-white">VPULSE</span>
@@ -236,13 +236,13 @@ const AppContent: React.FC = () => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-[13px] ${
+              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all duration-200 text-[13px] ${
                 activeTab === item.id
-                  ? 'text-[#FE2C55] font-black'
+                  ? 'text-neon-pink font-black bg-white/[0.04] shadow-[inset_3px_0_0_0_rgba(236,72,153,0.75)]'
                   : 'text-white font-semibold hover:bg-white/[0.06]'
               }`}
             >
-              <span className={activeTab === item.id ? 'text-[#FE2C55]' : 'text-white'}>
+              <span className={activeTab === item.id ? 'text-neon-pink' : 'text-white'}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
@@ -286,7 +286,7 @@ const AppContent: React.FC = () => {
                     <path d="M24 4a8 8 0 0 0-8 8v2.2A12 12 0 0 0 12 24v8l-4 4v2h32v-2l-4-4v-8a12 12 0 0 0-4-9.8V12a8 8 0 0 0-8-8Zm0 40a4 4 0 0 0 4-4h-8a4 4 0 0 0 4 4Z"/>
                   </svg>
                   {notifications.length > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-[#FE2C55] rounded-full border border-[#121212]" />
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-neon-pink rounded-full border border-neon-base" />
                   )}
                 </span>
                 <span>Notifications</span>
@@ -304,7 +304,7 @@ const AppContent: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setShowMoreMenu(v => !v)}
-              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-[13px] font-semibold hover:bg-white/[0.06] ${showMoreMenu ? 'text-[#FE2C55]' : 'text-white'}`}
+              className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md transition-all text-[13px] font-semibold hover:bg-white/[0.06] ${showMoreMenu ? 'text-neon-pink' : 'text-white'}`}
             >
               <svg viewBox="0 0 48 48" fill="currentColor" className="w-5 h-5 shrink-0">
                 <path d="M5 24a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm15 0a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm15 0a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z"/>
@@ -319,11 +319,11 @@ const AppContent: React.FC = () => {
                 <div className="fixed inset-0 z-[60]" onClick={() => setShowMoreMenu(false)} />
 
                 {/* Panel */}
-                <div className="fixed left-52 bottom-16 z-[61] w-72 bg-[#1a1a1a] rounded-2xl shadow-2xl overflow-hidden border border-white/[0.08]">
+                <div className="fixed left-52 bottom-16 z-[61] w-72 bg-neon-panel rounded-2xl shadow-2xl shadow-neon-violet/15 overflow-hidden border border-white/[0.08]">
                   {/* Header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-lg flex items-center justify-center">
+                      <div className="w-7 h-7 bg-gradient-to-br from-neon-violet to-neon-cyan rounded-lg flex items-center justify-center shadow-md shadow-neon-cyan/25">
                         <span className="text-sm font-black italic text-white leading-none">V</span>
                       </div>
                       <span className="text-[17px] font-bold text-white">More</span>
@@ -398,7 +398,7 @@ const AppContent: React.FC = () => {
                       </svg>
                       <div className="flex items-center gap-1.5">
                         <span className="text-[14px] font-semibold text-white">Creator Studio</span>
-                        <span className="w-2 h-2 bg-[#FE2C55] rounded-full" />
+                        <span className="w-2 h-2 bg-neon-pink rounded-full" />
                       </div>
                     </button>
 
@@ -443,7 +443,7 @@ const AppContent: React.FC = () => {
               >
                 <div className="relative shrink-0">
                   <img src={user.avatar} className="w-8 h-8 rounded-full object-cover ring-2 ring-white/20" alt="" />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-[#121212]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-neon-base" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-white truncate">{user.name}</p>
@@ -452,7 +452,7 @@ const AppContent: React.FC = () => {
               </button>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-[15px] text-white font-semibold hover:bg-white/[0.06] hover:text-[#FE2C55] transition"
+                className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-[15px] text-white font-semibold hover:bg-white/[0.06] hover:text-neon-pink transition"
               >
                 <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="3" className="w-6 h-6 shrink-0">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m14 4v1a5 5 0 01-5 5H8a5 5 0 01-5-5V9a5 5 0 015-5h8a5 5 0 015 5v1"/>
@@ -465,7 +465,7 @@ const AppContent: React.FC = () => {
             <div className="px-3 py-2">
               <button
                 onClick={() => navigate('/login')}
-                className="w-full py-2 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white font-bold text-[15px] transition"
+                className="w-full py-2 rounded-full bg-neon-pink hover:bg-neon-pink-hover text-white font-bold text-[15px] transition duration-200 shadow-neon-pink/30 hover:shadow-neon-pink/50"
               >
                 Log in
               </button>
@@ -510,7 +510,7 @@ const AppContent: React.FC = () => {
       </main>
 
       {/* ── Mobile bottom navigation ── fixed to viewport, always on top */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#121212]/90 backdrop-blur-xl border-t border-white/[0.08] flex items-center py-2 px-3 z-[9999]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-neon-base/92 backdrop-blur-xl border-t border-white/[0.08] shadow-neon-line flex items-center py-2 px-3 z-[9999]">
         {/* Left side icons */}
         <div className="flex-1 flex justify-around items-center">
           {[
@@ -520,7 +520,7 @@ const AppContent: React.FC = () => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-[#FE2C55] scale-110' : 'text-white/60 hover:text-white'}`}
+              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-neon-pink scale-110' : 'text-white/60 hover:text-white'}`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
             </button>
@@ -546,7 +546,7 @@ const AppContent: React.FC = () => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-[#FE2C55] scale-110' : 'text-white/60 hover:text-white'}`}
+              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-neon-pink scale-110' : 'text-white/60 hover:text-white'}`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
             </button>
