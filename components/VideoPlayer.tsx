@@ -674,9 +674,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
                     max="100"
                     value={duration > 0 ? (currentTime / duration) * 100 : 0}
                     onChange={handleSeek}
-                    className="w-full h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-fuchsia-500 hover:accent-fuchsia-400 transition-all"
+                    className="w-full h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all"
                     style={{
-                      background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255,255,255,0.25) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255,255,255,0.25) 100%)`
+                      background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255,255,255,0.25) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255,255,255,0.25) 100%)`
                     }}
                   />
                 </div>
@@ -735,9 +735,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
                             max="100"
                             value={volume}
                             onChange={handleVolumeChange}
-                            className="w-24 h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-fuchsia-500"
+                            className="w-24 h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-purple-500"
                             style={{
-                              background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${volume}%, rgba(255,255,255,0.25) ${volume}%, rgba(255,255,255,0.25) 100%)`
+                              background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${volume}%, rgba(255,255,255,0.25) ${volume}%, rgba(255,255,255,0.25) 100%)`
                             }}
                           />
                         </div>

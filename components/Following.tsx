@@ -49,14 +49,14 @@ const FollowButton: React.FC<FollowButtonProps> = ({ relation, onChange }) => {
           : 'Friends';
 
   const base =
-    'inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neon-base active:scale-[0.98] sm:text-[13px]';
+    'inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FE2C55] focus-visible:ring-offset-2 focus-visible:ring-offset-[#121212] active:scale-[0.98] sm:text-[13px]';
 
   if (relation === 'follow') {
     return (
       <button
         type="button"
         aria-pressed="false"
-        className={`${base} bg-neon-pink text-white shadow-md shadow-neon-pink/30 hover:bg-neon-pink-hover`}
+        className={`${base} bg-[#FE2C55] text-white shadow-md shadow-[#FE2C55]/20 hover:bg-[#e6254b]`}
         onClick={e => {
           e.stopPropagation();
           onChange('following');
@@ -126,7 +126,7 @@ interface CreatorCardProps {
 }
 
 const VerifiedIcon = () => (
-  <svg className="h-3.5 w-3.5 shrink-0 text-neon-cyan" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+  <svg className="h-3.5 w-3.5 shrink-0 text-[#20d5ec]" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
     <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
   </svg>
 );
@@ -151,11 +151,11 @@ const CreatorCard: React.FC<CreatorCardProps> = ({
             onOpenProfile();
           }
         }}
-        className="relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-neon-elevated transition-all duration-200 hover:border-neon-violet/22 hover:shadow-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink focus-visible:ring-offset-2 focus-visible:ring-offset-neon-base sm:hover:-translate-y-0.5"
+        className="relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-[#141414] transition-all duration-300 hover:border-white/[0.14] hover:shadow-xl hover:shadow-black/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FE2C55] focus-visible:ring-offset-2 focus-visible:ring-offset-[#121212] sm:hover:-translate-y-0.5"
         aria-label={`Open profile ${creator.name}`}
       >
         <div className={`relative w-full shrink-0 overflow-hidden ${THUMB_ASPECT}`}>
-          {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-neon-ink" />}
+          {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-[#1e1e1e]" />}
           <img
             src={creator.coverImage}
             alt=""
@@ -230,7 +230,7 @@ const FollowingPage: React.FC<FollowingPageProps> = () => {
   const creators = FOLLOWING_FEED_CREATORS;
 
   return (
-    <div className="isolate flex min-h-full w-full min-w-0 max-w-full flex-col overflow-x-hidden bg-neon-base">
+    <div className="isolate flex min-h-full w-full min-w-0 max-w-full flex-col overflow-x-hidden bg-[#121212]">
       <div className="mx-auto w-full max-w-[1600px] min-w-0 px-4 pt-4 pb-24 sm:px-5 sm:pt-5 lg:px-6 lg:pb-10 lg:pt-6">
         {creators.length === 0 ? (
           <p className="py-12 text-center text-sm text-white/45">No creators to show yet.</p>

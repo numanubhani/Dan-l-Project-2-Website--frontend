@@ -31,25 +31,40 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
-  // SPA navigation fallback
+  // SPA navigation fallback — always resolve to a real Response (undefined breaks respondWith)
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req).catch(() => caches.match("/index.html"))
+      (async () => {
+        try {
+          return await fetch(req);
+        } catch {
+          const cached = await caches.match("/index.html");
+          if (cached) return cached;
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Service Unavailable",
+            headers: { "Content-Type": "text/plain; charset=UTF-8" },
+          });
+        }
+      })()
     );
     return;
   }
 
   // Static assets: cache-first then network
   event.respondWith(
-    caches.match(req).then((cached) => {
+    caches.match(req).then(async (cached) => {
       if (cached) return cached;
-      return fetch(req)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, responseClone));
-          return response;
-        })
-        .catch(() => cached);
+      try {
+        const response = await fetch(req);
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+        }
+        return response;
+      } catch {
+        return new Response("", { status: 504, statusText: "Gateway Timeout" });
+      }
     })
   );
 });

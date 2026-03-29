@@ -95,6 +95,36 @@ const parseErrorMessage = (error: any, fallback: string): string => {
   return error.detail || error.message || error.error || fallback;
 };
 
+const loginWithCredentials = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+  const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    let message = 'Login failed';
+    try {
+      const error = await response.json();
+      message = parseErrorMessage(error, message);
+    } catch {
+      /* non-JSON */
+    }
+    throw new Error(message);
+  }
+
+  const result: AuthResponse = await response.json();
+  const token = extractToken(result);
+  if (token) {
+    setAuthToken(token);
+  } else {
+    throw new Error('Login succeeded but no auth token was returned by the API.');
+  }
+  return result;
+};
+
 const normalizeListResponse = <T,>(payload: any): T[] => {
   if (Array.isArray(payload)) return payload as T[];
   if (payload && Array.isArray(payload.results)) return payload.results as T[];
@@ -123,32 +153,14 @@ export const api = {
     const token = extractToken(result);
     if (token) {
       setAuthToken(token);
+    } else if (data.username && data.password) {
+      await loginWithCredentials({ username: data.username, password: data.password });
     }
     return result;
   },
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/login/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(parseErrorMessage(error, 'Login failed'));
-    }
-
-    const result: AuthResponse = await response.json();
-    const token = extractToken(result);
-    if (token) {
-      setAuthToken(token);
-    } else {
-      throw new Error('Login succeeded but no auth token was returned by the API.');
-    }
-    return result;
+    return loginWithCredentials(credentials);
   },
 
   async logout(): Promise<void> {
@@ -357,9 +369,18 @@ export const api = {
       method: 'GET',
       headers: getAuthHeaders(),
     });
+    if (response.status === 401 || response.status === 403) {
+      return [];
+    }
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(parseErrorMessage(error, 'Failed to get feed'));
+      let message = 'Failed to get feed';
+      try {
+        const error = await response.json();
+        message = parseErrorMessage(error, message);
+      } catch {
+        /* non-JSON error body */
+      }
+      throw new Error(message);
     }
     const payload = await response.json();
     return normalizeListResponse<any>(payload);

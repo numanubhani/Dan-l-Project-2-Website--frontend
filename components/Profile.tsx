@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User } from '../types';
-import { api, convertApiUserToUser } from '../services/api';
+import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import EditProfileModal from './EditProfileModal';
@@ -14,22 +14,6 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, sidebarOpen = true }) => {
-  // If no user is provided, redirect to login or show message
-  if (!user) {
-    return (
-      <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 font-medium mb-4">Please log in to view profiles</p>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
@@ -45,24 +29,13 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   const [shopItems, setShopItems] = useState<any[]>([]);
   const [videosLoading, setVideosLoading] = useState(false);
 
-  const isOwnProfile = !id || (currentUser && (id === currentUser.id || id === user?.id)) || (user && id === user.id);
-  const profileUserId = id || (user?.id || '');
-
-  useEffect(() => {
-    loadProfileData();
-  }, [profileUserId]);
-
-  useEffect(() => {
-    if (activeTab === 'reels' || activeTab === 'video-live') {
-      loadVideos();
-    } else if (activeTab === 'inbox') {
-      loadInbox();
-    } else if (activeTab === 'shop') {
-      loadShopItems();
-    }
-  }, [activeTab, profileUserId]);
+  const isOwnProfile =
+    Boolean(user) &&
+    (!id || (currentUser && (id === currentUser.id || id === user?.id)) || (user && id === user.id));
+  const profileUserId = id || user?.id || '';
 
   const loadProfileData = async () => {
+    if (!user || !profileUserId) return;
     try {
       setLoading(true);
       const data = await api.getUserProfile(profileUserId);
@@ -76,6 +49,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   };
 
   const loadVideos = async () => {
+    if (!user || !profileUserId) return;
     try {
       setVideosLoading(true);
       let videos;
@@ -106,6 +80,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   };
 
   const loadShopItems = async () => {
+    if (!user || !profileUserId) return;
     try {
       const items = await api.getUserShopItems(profileUserId);
       setShopItems(items);
@@ -140,6 +115,42 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
     if (hours > 0) return `${hours}h ago`;
     return 'Just now';
   };
+
+  useEffect(() => {
+    if (!user || !profileUserId) {
+      setLoading(false);
+      return;
+    }
+    loadProfileData();
+  }, [profileUserId, user]);
+
+  useEffect(() => {
+    if (!user || !profileUserId) return;
+    if (activeTab === 'reels' || activeTab === 'video-live') {
+      loadVideos();
+    } else if (activeTab === 'inbox') {
+      loadInbox();
+    } else if (activeTab === 'shop') {
+      loadShopItems();
+    }
+  }, [activeTab, profileUserId, user]);
+
+  if (!user) {
+    return (
+      <div className="w-full min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium mb-4">Please log in to view profiles</p>
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-purple-600 transition"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -287,12 +298,15 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] text-gray-500 font-bold mb-0.5">Balance</p>
-                  <p className="text-lg font-black text-purple-600">${(user?.balance || 0).toLocaleString()}</p>
+                  <p className="text-lg font-black text-purple-600">
+                    ${Number(profileData?.balance ?? user.balance ?? 0).toLocaleString()}
+                  </p>
                 </div>
                 {isOwnProfile && (
                   <button 
                     onClick={() => {
-                      if (!user || (user.balance || 0) < 10) {
+                      const bal = Number(profileData?.balance ?? user.balance ?? 0);
+                      if (!user || bal < 10) {
                         showError('Minimum balance for withdraw is $10');
                       } else {
                         showSuccess('Withdrawal request submitted!');

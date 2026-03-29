@@ -1,28 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --bg-0: #0a0a0f;
-  --bg-1: #0c0c12;
-  --bg-2: #111118;
-  --surface-1: #111118;
-  --surface-2: #0f0f1a;
-  --surface-3: #16161f;
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --border-subtle: rgba(168, 85, 247, 0.2);
-  --pink: #ec4899;
-  --pink-hover: #db2777;
+  --bg-0: #06060a;
+  --bg-1: #0b0915;
+  --bg-2: #121026;
+  --surface-1: #17122a;
+  --surface-2: #1f1636;
+  --surface-3: #231b3f;
+  --text-primary: #f5f7ff;
+  --text-secondary: #b8bfd9;
+  --text-muted: #8b93b5;
+  --border-subtle: rgba(139, 92, 246, 0.24);
+  --pink: #ff2d7a;
   --blue: #38bdf8;
   --cyan: #22d3ee;
-  --violet: #a855f7;
+  --violet: #8b5cf6;
   --success: #2ee6b8;
   --radius-card: 24px;
   --radius-btn: 18px;
   --radius-input: 16px;
-  --shadow-glow-pink: 0 10px 32px rgba(236, 72, 153, 0.22);
-  --shadow-glow-violet: 0 10px 32px rgba(168, 85, 247, 0.2);
-  --shadow-soft: 0 10px 36px rgba(0, 0, 0, 0.42);
+  --shadow-glow-pink: 0 10px 30px rgba(255, 45, 122, 0.28);
+  --shadow-glow-violet: 0 10px 30px rgba(139, 92, 246, 0.28);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 html,
@@ -31,10 +30,9 @@ body {
   min-height: 100%;
   font-family: 'Inter', sans-serif;
   background:
-    radial-gradient(circle at 12% 8%, rgba(168, 85, 247, 0.14), transparent 38%),
-    radial-gradient(circle at 88% 18%, rgba(34, 211, 238, 0.1), transparent 36%),
-    radial-gradient(circle at 50% 100%, rgba(236, 72, 153, 0.06), transparent 45%),
-    linear-gradient(165deg, var(--bg-0) 0%, #08080d 48%, #0a0a12 100%);
+    radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.2), transparent 35%),
+    radial-gradient(circle at 90% 20%, rgba(34, 211, 238, 0.16), transparent 35%),
+    linear-gradient(135deg, var(--bg-0) 0%, var(--bg-1) 45%, #0f0c20 100%);
   color: var(--text-primary);
 }
 
@@ -44,42 +42,34 @@ body {
 
 /* Core shell helpers */
 .neon-surface {
-  background: linear-gradient(
-    155deg,
-    rgba(17, 17, 24, 0.96),
-    rgba(10, 10, 15, 0.94)
-  );
-  border: 1px solid rgba(168, 85, 247, 0.16);
+  background: linear-gradient(145deg, rgba(30, 22, 52, 0.9), rgba(14, 11, 26, 0.92));
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-soft), 0 0 0 1px rgba(34, 211, 238, 0.06);
+  box-shadow: var(--shadow-soft);
 }
 
 .glass-surface {
-  background: linear-gradient(
-    155deg,
-    rgba(17, 17, 26, 0.72),
-    rgba(8, 8, 14, 0.78)
-  );
-  border: 1px solid rgba(167, 139, 250, 0.22);
-  backdrop-filter: blur(12px);
+  background: linear-gradient(145deg, rgba(36, 26, 61, 0.62), rgba(11, 10, 21, 0.74));
+  border: 1px solid rgba(167, 139, 250, 0.28);
+  backdrop-filter: blur(14px);
 }
 
 .neon-cta {
-  background: linear-gradient(135deg, var(--violet), var(--pink) 52%, #c084fc);
+  background: linear-gradient(135deg, var(--pink), #ff4d9a 45%, var(--violet));
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow: var(--shadow-glow-pink);
 }
 
 .neon-cta:hover {
-  filter: brightness(1.06);
-  box-shadow: var(--shadow-glow-pink), 0 0 24px rgba(236, 72, 153, 0.25);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
 .neon-outline {
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  background: rgba(10, 10, 18, 0.82);
-  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  background: rgba(13, 13, 23, 0.76);
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.18);
 }
 
 .shadow-neon-violet {
@@ -88,7 +78,7 @@ body {
 
 /* Utility remap for existing Tailwind-heavy UI */
 .bg-white {
-  background-color: var(--surface-2) !important;
+  background-color: var(--bg-1) !important;
 }
 
 .bg-gray-50,
@@ -98,7 +88,7 @@ body {
 }
 
 .bg-zinc-900 {
-  background-color: #0a0a12 !important;
+  background-color: #0f0b1b !important;
 }
 
 .text-gray-900,
@@ -140,29 +130,27 @@ body {
 .text-purple-600,
 .text-purple-500,
 .text-purple-400 {
-  color: #e9d5ff !important;
+  color: #d2b0ff !important;
 }
 
 .bg-purple-500,
 .bg-purple-600,
 .bg-purple-400 {
-  background-color: rgba(168, 85, 247, 0.88) !important;
+  background-color: rgba(255, 45, 122, 0.9) !important;
 }
 
 .hover\:bg-purple-600:hover,
 .hover\:bg-purple-500:hover {
-  background-color: rgba(168, 85, 247, 1) !important;
+  background-color: rgba(255, 45, 122, 1) !important;
 }
 
 input,
 textarea,
 select {
-  background-color: rgba(15, 15, 26, 0.92) !important;
+  background-color: rgba(19, 16, 34, 0.92) !important;
   color: var(--text-primary) !important;
-  border-color: rgba(168, 85, 247, 0.28) !important;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  border-color: rgba(139, 92, 246, 0.36) !important;
+  border-radius: var(--radius-input) !important;
 }
 
 input::placeholder,
@@ -174,17 +162,20 @@ input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: rgba(236, 72, 153, 0.55) !important;
-  box-shadow:
-    0 0 0 3px rgba(168, 85, 247, 0.18),
-    0 0 18px rgba(34, 211, 238, 0.12) !important;
+  border-color: rgba(255, 45, 122, 0.7) !important;
+  box-shadow: 0 0 0 3px rgba(255, 45, 122, 0.2) !important;
 }
 
 button {
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: var(--radius-card) !important;
+}
+
+.rounded-lg {
+  border-radius: var(--radius-btn) !important;
 }

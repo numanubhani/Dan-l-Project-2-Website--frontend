@@ -1,12 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MOCK_VIDEOS, MOCK_USER } from '../constants';
 import { HeartIcon, CommentIcon, ShareIcon } from './Icons';
 import BettingOverlay from './BettingOverlay';
-import { Video, User } from '../types';
+import { Video, User, UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../services/api';
+
+const GUEST_USER: User = {
+  id: '0',
+  name: 'Guest',
+  avatar: '',
+  role: UserRole.VIEWER,
+  balance: 0,
+};
 
 interface FeedProps {
   user?: User;
@@ -252,7 +259,8 @@ const DesktopActionRail: React.FC<{
 
 // ─── Feed ───────────────────────────────────────────────────────────────────
 const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
-  const displayUser = user || MOCK_USER;
+  const { user: authUser, isAuthenticated, showLoginModal } = useAuth();
+  const displayUser = user ?? authUser ?? GUEST_USER;
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -297,11 +305,15 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
     }
   };
 
-  // Feed data
+  // Feed data — refetch when auth state changes so a new session picks up /videos/feed/
   const [feedVideos, setFeedVideos] = useState<Video[] | null>(null);
   useEffect(() => {
-    api.getFeedVideos()
+    let cancelled = false;
+    setFeedVideos(null);
+    api
+      .getFeedVideos()
       .then((data: any[]) => {
+        if (cancelled) return;
         const mapped: Video[] = data.map((v: any) => ({
           id: String(v.id),
           creatorId: String(v.creator ?? ''),
@@ -332,12 +344,16 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
         }));
         setFeedVideos(mapped);
       })
-      .catch(() => setFeedVideos(null));
-  }, []);
+      .catch(() => {
+        if (!cancelled) setFeedVideos([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, authUser?.id, isAuthenticated]);
 
-  const videosToShow = (feedVideos && feedVideos.length > 0)
-    ? feedVideos.slice(0, 20)
-    : MOCK_VIDEOS.slice(0, 6);
+  const videosToShow = (feedVideos ?? []).slice(0, 20);
+  const feedLoading = feedVideos === null;
 
   const activeVideo = videosToShow[activeIndex] ?? null;
   const isActiveLiked = activeVideo ? likedVideos.has(activeVideo.id) : false;
@@ -448,7 +464,7 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             <span className="font-bold text-sm whitespace-nowrap">Live</span>
           </button>
 
-          <div className="flex items-center overflow-x-auto scrollbar-hide flex-1" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex items-center overflow-x-auto scrollbar-hide flex-1 min-w-0" style={{ scrollbarWidth: 'none' }}>
             {['Stem', 'Explore', 'Following', 'Friend', 'For You'].map(item => (
               <button
                 key={item}
@@ -462,11 +478,43 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             ))}
           </div>
 
-          <div className="shrink-0 px-3 py-3 border-l border-white/10">
-            <button className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition" aria-label="Search">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+          <div className="shrink-0 flex items-center border-l border-white/10">
+            {!isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => showLoginModal('continue')}
+                className="mx-2 px-3 py-1.5 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white text-xs font-bold whitespace-nowrap transition"
+              >
+                Log in
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate('/profile')}
+                className="mx-2 p-0.5 rounded-full ring-1 ring-white/20 hover:ring-fuchsia-500/50 transition"
+                aria-label="Profile"
+              >
+                {displayUser.avatar ? (
+                  <img src={displayUser.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            )}
+            <button
+              type="button"
+              className="p-3 pr-3 border-l border-white/10"
+              aria-label="Search"
+            >
+              <span className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition inline-flex">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
             </button>
           </div>
         </div>
@@ -489,40 +537,76 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             overscrollBehavior: 'contain',
           }}
         >
-          {videosToShow.map((video, i) => (
-            <VideoCard
-              key={video.id}
-              video={video}
-              isActive={activeIndex === i}
-              cardHeight={cardHeight}
-              isLiked={likedVideos.has(video.id)}
-              onLike={() => handleLike(video.id)}
-              onComment={() => showSuccess('Comment feature coming soon!')}
-              onBet={() => setBettingVideoId(video.id)}
-              showBettingOverlay={bettingVideoId === video.id}
-              onCloseBetting={() => setBettingVideoId(null)}
-              onPlaceEventBet={async (eventId, optionId, amt) => {
-                try {
-                  await api.placeEventBet(eventId, optionId, amt);
-                  showSuccess(`Bet placed: $${amt}`);
-                } catch (err: any) {
-                  showError(err.message || 'Failed to place bet');
-                }
-              }}
-              user={displayUser}
-            />
-          ))}
-
-          {/* Loading sentinel */}
-          <div
-            className="w-full flex items-center justify-center bg-black snap-start"
-            style={{ height: cardHeight, minHeight: cardHeight }}
-          >
-            <div className="text-center">
-              <div className="w-14 h-14 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-white/50 text-sm font-medium">Loading more...</p>
+          {feedLoading ? (
+            <div
+              className="w-full flex items-center justify-center bg-black snap-start"
+              style={{ height: cardHeight, minHeight: cardHeight }}
+            >
+              <div className="text-center px-6">
+                <div className="w-14 h-14 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-white/50 text-sm font-medium">Loading feed…</p>
+              </div>
             </div>
-          </div>
+          ) : videosToShow.length === 0 ? (
+            <div
+              className="w-full flex items-center justify-center bg-black snap-start px-6"
+              style={{ height: cardHeight, minHeight: cardHeight }}
+            >
+              <div className="text-center max-w-sm">
+                <p className="text-white font-bold text-lg mb-2">No videos yet</p>
+                <p className="text-white/50 text-sm mb-6">
+                  {isAuthenticated
+                    ? 'Your feed is empty. Check back later or explore creators.'
+                    : 'Sign in to load your personalized feed from the server.'}
+                </p>
+                {!isAuthenticated && (
+                  <button
+                    type="button"
+                    onClick={() => showLoginModal('see your feed')}
+                    className="px-6 py-3 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white font-bold text-sm transition"
+                  >
+                    Log in
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            videosToShow.map((video, i) => (
+              <VideoCard
+                key={video.id}
+                video={video}
+                isActive={activeIndex === i}
+                cardHeight={cardHeight}
+                isLiked={likedVideos.has(video.id)}
+                onLike={() => handleLike(video.id)}
+                onComment={() => showSuccess('Comment feature coming soon!')}
+                onBet={() => setBettingVideoId(video.id)}
+                showBettingOverlay={bettingVideoId === video.id}
+                onCloseBetting={() => setBettingVideoId(null)}
+                onPlaceEventBet={async (eventId, optionId, amt) => {
+                  try {
+                    await api.placeEventBet(eventId, optionId, amt);
+                    showSuccess(`Bet placed: $${amt}`);
+                  } catch (err: any) {
+                    showError(err.message || 'Failed to place bet');
+                  }
+                }}
+                user={displayUser}
+              />
+            ))
+          )}
+
+          {!feedLoading && videosToShow.length > 0 && (
+            <div
+              className="w-full flex items-center justify-center bg-black snap-start"
+              style={{ height: cardHeight, minHeight: cardHeight }}
+            >
+              <div className="text-center">
+                <div className="w-14 h-14 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p className="text-white/50 text-sm font-medium">Loading more...</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Desktop-only action rail — outside the video column */}
