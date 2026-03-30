@@ -455,6 +455,18 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
       <div className="fixed top-0 left-0 right-0 z-[9998] bg-black/70 backdrop-blur-xl border-b border-white/10 lg:hidden">
         <div className="flex items-center">
           <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="shrink-0 pl-2 pr-2 py-3 flex flex-col items-center justify-center gap-0.5 border-r border-white/10 text-white/85 hover:text-white active:scale-95 transition min-w-[3rem]"
+            aria-label="Back to home — browse grid"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
+            <span className="text-[9px] font-bold uppercase tracking-wide leading-none opacity-90">Home</span>
+          </button>
+
+          <button
             onClick={() => setActiveNavItem('Live')}
             className={`shrink-0 px-3 py-3 flex items-center gap-1.5 transition ${activeNavItem === 'Live' ? 'text-pink-400 border-b-2 border-pink-400' : 'text-white/60'}`}
           >
