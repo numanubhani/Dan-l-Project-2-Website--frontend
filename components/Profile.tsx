@@ -28,6 +28,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   const [inboxMessages, setInboxMessages] = useState<any[]>([]);
   const [shopItems, setShopItems] = useState<any[]>([]);
   const [videosLoading, setVideosLoading] = useState(false);
+  const [deletingVideoId, setDeletingVideoId] = useState<string | null>(null);
 
   const isOwnProfile =
     Boolean(user) &&
@@ -86,6 +87,25 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
       setShopItems(items);
     } catch (err: any) {
       showError(err.message || 'Failed to load shop items');
+    }
+  };
+
+  const handleDeleteOwnVideo = async (videoId: string | number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isOwnProfile || !user) return;
+    const idStr = String(videoId);
+    if (!window.confirm('Delete this video? This cannot be undone.')) return;
+    setDeletingVideoId(idStr);
+    try {
+      await api.deleteVideo(idStr);
+      showSuccess('Video deleted');
+      setUserVideos((prev) => prev.filter((v) => String(v.id) !== idStr));
+      await loadProfileData();
+    } catch (err: any) {
+      showError(err.message || 'Failed to delete video');
+    } finally {
+      setDeletingVideoId(null);
     }
   };
 
@@ -544,6 +564,24 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
                           <span>Preview</span>
                         </button>
                       )}
+                      {isOwnProfile && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteOwnVideo(video.id, e)}
+                          disabled={deletingVideoId === String(video.id)}
+                          className="absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-lg transition disabled:opacity-50"
+                          title="Delete video"
+                          aria-label="Delete video"
+                        >
+                          {deletingVideoId === String(video.id) ? (
+                            <span className="block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          )}
+                        </button>
+                      )}
                       {/* Views Badge */}
                       <div className="absolute bottom-2 left-2 right-2">
                         <div className="bg-black/80 text-white text-xs px-2 py-1 rounded font-semibold">
@@ -631,7 +669,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
                     )}
                     {/* Live Badge */}
                     {video.is_live && (
-                      <div className="absolute top-2 right-2 flex items-center space-x-1 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold">
+                      <div className="absolute top-2 right-2 flex items-center space-x-1 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold z-[5]">
                         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                         <span>LIVE</span>
                       </div>
@@ -668,6 +706,16 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
                         </span>
                       )}
                     </div>
+                    {isOwnProfile && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteOwnVideo(video.id, e)}
+                        disabled={deletingVideoId === String(video.id)}
+                        className="mt-2 w-full py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 transition disabled:opacity-50"
+                      >
+                        {deletingVideoId === String(video.id) ? 'Deleting…' : 'Delete video'}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

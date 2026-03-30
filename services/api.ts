@@ -278,6 +278,27 @@ export const api = {
     return await response.json();
   },
 
+  /** Owner-only: remove a video. Backend expects `DELETE /videos/:id/`. */
+  async deleteVideo(videoId: string | number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/videos/${videoId}/`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (response.ok || response.status === 204) {
+      return;
+    }
+
+    let message = 'Failed to delete video';
+    try {
+      const error = await response.json();
+      message = parseErrorMessage(error, message);
+    } catch {
+      /* non-JSON */
+    }
+    throw new Error(message);
+  },
+
   // Get user videos
   async getUserVideos(userId: string, videoType?: 'short' | 'long' | 'live'): Promise<any[]> {
     const base = `${API_BASE_URL}/videos/user/${userId}/`;

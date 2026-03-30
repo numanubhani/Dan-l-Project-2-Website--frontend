@@ -40,6 +40,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   const [shownMarkers, setShownMarkers] = useState<Set<string>>(new Set());
   const [previewMarkerIndex, setPreviewMarkerIndex] = useState(0);
   const [relatedVideosList, setRelatedVideosList] = useState<Video[]>([]);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const isPreviewMode = searchParams.get('preview') === 'true';
 
   useEffect(() => {
@@ -84,7 +85,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
           // Convert backend video format to frontend format
           const convertedVideo: Video = {
             id: videoData.id.toString(),
-            creatorId: videoData.creator?.toString?.() ?? String(videoData.creator),
+            creatorId: String(
+              videoData.creator_id ?? videoData.creator?.id ?? videoData.creator ?? ''
+            ),
             creatorName: videoData.creator_name || 'Unknown',
             creatorAvatar: videoData.creator_avatar || '',
             title: videoData.title,
@@ -526,6 +529,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
     }
   };
 
+  const isOwner = Boolean(user && video && String(user.id) === String(video.creatorId));
+
+  const handleDeleteVideo = async () => {
+    if (!video || !isOwner || deleteBusy) return;
+    if (!window.confirm('Delete this video permanently? This cannot be undone.')) return;
+    setDeleteBusy(true);
+    try {
+      await api.deleteVideo(video.id);
+      showSuccess('Video deleted');
+      navigate('/profile');
+    } catch (e: any) {
+      showError(e?.message || 'Failed to delete video');
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen flex flex-col">
       {/* Betting Popup */}
@@ -576,6 +596,16 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
               <span className="text-xl font-black tracking-tight text-gray-900">VPULSE</span>
             </button>
           </div>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={handleDeleteVideo}
+              disabled={deleteBusy}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-bold transition disabled:opacity-50"
+            >
+              {deleteBusy ? 'Deleting…' : 'Delete video'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -634,16 +664,28 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
             {/* Video Controls Overlay */}
             <div className={`absolute inset-0 flex flex-col justify-between transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
-              {/* Top Gradient & Back Button (Mobile) */}
-              <div className="bg-gradient-to-b from-black/60 to-transparent p-4">
+              {/* Top Gradient & Back / owner delete (Mobile) */}
+              <div className="bg-gradient-to-b from-black/60 to-transparent p-4 flex items-start justify-between gap-2">
                 <button
+                  type="button"
                   onClick={() => navigate('/')}
-                  className="lg:hidden p-2.5 bg-black/50 rounded-full backdrop-blur-md text-white hover:bg-black/70 transition-all"
+                  className="lg:hidden p-2.5 bg-black/50 rounded-full backdrop-blur-md text-white hover:bg-black/70 transition-all shrink-0"
+                  aria-label="Back"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
+                {isOwner && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteVideo}
+                    disabled={deleteBusy}
+                    className="lg:hidden px-3 py-2 rounded-full bg-red-600/90 hover:bg-red-600 text-white text-xs font-bold backdrop-blur-md transition disabled:opacity-50 shrink-0"
+                  >
+                    {deleteBusy ? '…' : 'Delete'}
+                  </button>
+                )}
               </div>
 
               {/* Center Play/Pause Button */}
