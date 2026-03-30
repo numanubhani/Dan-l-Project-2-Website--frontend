@@ -110,10 +110,10 @@ const AppContent: React.FC = () => {
     return window.innerWidth < 1024; // lg breakpoint in Tailwind
   };
 
-  // On mobile, /home (long-video grid) is desktop-only — send to /reel feed instead
+  // On mobile, /home (long-video grid) matches desktop-only layout — land on / (main browse home)
   useEffect(() => {
     if (isMobile() && location.pathname === '/home') {
-      navigate('/reel', { replace: true });
+      navigate('/', { replace: true });
     }
   }, [location.pathname, navigate]);
 
@@ -128,7 +128,8 @@ const AppContent: React.FC = () => {
   const getActiveTab = () => {
     const path = location.pathname;
     if (path === '/home') return 'home';
-    if (path === '/' || path === '/reel' || path === '/feed') return 'foryou';
+    if (path === '/') return 'browse';
+    if (path === '/reel' || path === '/feed') return 'foryou';
     if (path === '/shop') return 'shop';
     if (path === '/market' || path === '/polymarket') return 'polymarket';
     if (path === '/explore') return 'explore';
@@ -514,7 +515,11 @@ const AppContent: React.FC = () => {
         {/* Left side icons */}
         <div className="flex-1 flex justify-around items-center">
           {[
-            { id: 'reel', path: '/reel', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+            {
+              id: 'browse',
+              path: '/',
+              icon: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+            },
             { id: 'shop', path: '/shop', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
           ].map(item => (
             <button

@@ -68,7 +68,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         onComplete={() => {
           setShowInterests(false);
           onLoginSuccess();
-          navigate('/reel');
+          navigate('/');
         }}
       />
     );
