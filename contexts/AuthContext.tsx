@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import LoginModal from '../components/LoginModal';
 import { User } from '../types';
+import { api, convertApiUserToUser } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -14,8 +15,8 @@ interface AuthContextType {
   applyDummyWalletTopUp: (amount: number) => void;
   /** Deduct stake locally when API rejects for insufficient funds but client test balance covers it. */
   applyDummyWalletDebit: (amount: number) => void;
-  /** Subtract from local balance when API rejects for insufficient funds but test wallet has enough. */
-  applyDummyWalletDebit: (amount: number) => void;
+  /** Reload profile from API (e.g. after server-side test wallet credit). */
+  refreshUserFromApi: () => Promise<void>;
   addCoinsModalOpen: boolean;
   openAddCoinsModal: () => void;
   closeAddCoinsModal: () => void;
@@ -129,6 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         requireAuth,
         applyDummyWalletTopUp,
         applyDummyWalletDebit,
+        refreshUserFromApi,
         addCoinsModalOpen,
         openAddCoinsModal,
         closeAddCoinsModal,

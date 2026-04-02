@@ -209,6 +209,35 @@ export const api = {
     return await response.json();
   },
 
+  /**
+   * Dev/QA only: credit server wallet when backend enables `ENABLE_TEST_WALLET_API`.
+   * See POST /api/wallet/test-credit/
+   */
+  async testWalletCredit(amount: number): Promise<{ message: string; balance: number }> {
+    const response = await fetch(`${API_BASE_URL}/wallet/test-credit/`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ amount }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        removeAuthToken();
+        throw new Error('Unauthorized');
+      }
+      let message = 'Test wallet credit failed';
+      try {
+        const error = await response.json();
+        message = parseErrorMessage(error, message);
+      } catch {
+        /* non-JSON */
+      }
+      throw new Error(message);
+    }
+
+    return await response.json();
+  },
+
   async getProfile(): Promise<User> {
     const response = await fetch(`${API_BASE_URL}/profile/profile/`, {
       method: 'GET',

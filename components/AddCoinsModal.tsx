@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
+import { api } from '../services/api';
 
 const PRESETS = [10, 50, 100, 500] as const;
 
-/** Dev/test-only: add fake coins locally (not sent to API). */
+/** Dev/test-only: credit server wallet when enabled; otherwise local dummy balance. */
 const AddCoinsModal: React.FC = () => {
-  const { addCoinsModalOpen, closeAddCoinsModal, applyDummyWalletTopUp, user } = useAuth();
-  const { showSuccess } = useToast();
+  const { addCoinsModalOpen, closeAddCoinsModal, applyDummyWalletTopUp, refreshUserFromApi, user } =
+    useAuth();
+  const { showSuccess, showWarning } = useToast();
   const [custom, setCustom] = useState('25');
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (addCoinsModalOpen) setCustom('25');
@@ -18,17 +21,28 @@ const AddCoinsModal: React.FC = () => {
 
   const balance = typeof user?.balance === 'number' ? user.balance : 0;
 
-  const confirmAmount = (amount: number) => {
-    if (amount <= 0 || !Number.isFinite(amount)) return;
-    applyDummyWalletTopUp(amount);
-    showSuccess(`Added $${amount.toLocaleString()} (test wallet)`);
-    closeAddCoinsModal();
+  const confirmAmount = async (amount: number) => {
+    if (amount <= 0 || !Number.isFinite(amount) || busy) return;
+    setBusy(true);
+    try {
+      await api.testWalletCredit(amount);
+      await refreshUserFromApi();
+      showSuccess(`Added $${amount.toLocaleString()} to your wallet`);
+      closeAddCoinsModal();
+    } catch {
+      showWarning('Server test credit unavailable — added locally only (bets may still fail on API).');
+      applyDummyWalletTopUp(amount);
+      showSuccess(`Added $${amount.toLocaleString()} (local test wallet)`);
+      closeAddCoinsModal();
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleConfirmCustom = () => {
     const n = parseFloat(custom);
     if (Number.isNaN(n) || n <= 0) return;
-    confirmAmount(n);
+    void confirmAmount(n);
   };
 
   return (
@@ -77,8 +91,9 @@ const AddCoinsModal: React.FC = () => {
                 <button
                   key={amt}
                   type="button"
-                  onClick={() => confirmAmount(amt)}
-                  className="py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#a855f7]/90 to-[#ec4899]/90 hover:opacity-95 border border-white/10 transition shadow-[0_8px_24px_rgba(168,85,247,0.25)]"
+                  disabled={busy}
+                  onClick={() => void confirmAmount(amt)}
+                  className="py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#a855f7]/90 to-[#ec4899]/90 hover:opacity-95 border border-white/10 transition shadow-[0_8px_24px_rgba(168,85,247,0.25)] disabled:opacity-50 disabled:pointer-events-none"
                 >
                   +${amt}
                 </button>
@@ -102,10 +117,11 @@ const AddCoinsModal: React.FC = () => {
               />
               <button
                 type="button"
+                disabled={busy}
                 onClick={handleConfirmCustom}
-                className="px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-white/[0.12] border border-white/15 hover:bg-white/[0.16] transition shrink-0"
+                className="px-4 py-2.5 rounded-xl font-bold text-sm text-white bg-white/[0.12] border border-white/15 hover:bg-white/[0.16] transition shrink-0 disabled:opacity-50 disabled:pointer-events-none"
               >
-                Add
+                {busy ? '…' : 'Add'}
               </button>
             </div>
           </div>
