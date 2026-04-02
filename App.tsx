@@ -17,6 +17,8 @@ import Shop from './components/Shop';
 import Profile from './components/Profile';
 import Login from './components/Login';
 import VideoUpload from './components/VideoUpload';
+import AppIcon from './components/AppIcon';
+import AddCoinsModal from './components/AddCoinsModal';
 import { api, User as ApiUser, getAuthToken, convertApiUserToUser } from './services/api';
 import { UserRole, Notification, User } from './types';
 import { ToastProvider } from './contexts/ToastContext';
@@ -148,9 +150,7 @@ const AppContent: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/40 mx-auto mb-4">
-            <span className="text-3xl font-black italic text-white">V</span>
-          </div>
+          <AppIcon className="w-16 h-16 mx-auto mb-4 rounded-xl shadow-lg shadow-purple-400/30" alt="VPULSE" />
           <p className="text-gray-600 font-bold">Loading...</p>
         </div>
       </div>
@@ -166,7 +166,10 @@ const AppContent: React.FC = () => {
       initialUser={user || null}
       initialIsAuthenticated={isAuthenticated}
       onLoginSuccess={handleLoginSuccess}
+      syncUserToApp={setUser}
     >
+      {/* AddCoinsModal lives here (not in AuthContext) to avoid circular import: AddCoinsModal → AuthContext → AddCoinsModal */}
+      <AddCoinsModal />
       {/*
         Root: fixed viewport height, no overflow — each zone scrolls independently.
         Sidebar is fixed (out of flow); main gets padding-left to match.
@@ -186,9 +189,7 @@ const AppContent: React.FC = () => {
             onClick={() => navigate('/')}
             className="flex items-center gap-2 rounded-lg px-1 py-1 hover:bg-white/5 transition w-full"
           >
-            <div className="w-8 h-8 shrink-0 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-base font-black italic text-white leading-none">V</span>
-            </div>
+            <AppIcon className="w-8 h-8 rounded-lg shadow-md" />
             <span className="text-[17px] font-black tracking-tight text-white">VPULSE</span>
           </button>
         </div>
@@ -324,9 +325,7 @@ const AppContent: React.FC = () => {
                   {/* Header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-lg flex items-center justify-center">
-                        <span className="text-sm font-black italic text-white leading-none">V</span>
-                      </div>
+                      <AppIcon className="w-7 h-7 rounded-lg" />
                       <span className="text-[17px] font-bold text-white">More</span>
                     </div>
                     <button
@@ -510,52 +509,32 @@ const AppContent: React.FC = () => {
         </Routes>
       </main>
 
-      {/* ── Mobile bottom navigation ── fixed to viewport, always on top */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#121212]/90 backdrop-blur-xl border-t border-white/[0.08] flex items-center py-2 px-3 z-[9999]">
-        {/* Left side icons */}
-        <div className="flex-1 flex justify-around items-center">
-          {[
-            {
-              id: 'browse',
-              path: '/',
-              icon: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
-            },
-            { id: 'shop', path: '/shop', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.path)}
-              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-[#FE2C55] scale-110' : 'text-white/60 hover:text-white'}`}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
-            </button>
-          ))}
-        </div>
-
-        {/* Center + icon */}
-        <div className="flex-shrink-0 mx-4">
-          <button
-            onClick={() => navigate('/create')}
-            className="p-1.5 rounded-xl transition text-white/60 hover:text-white"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-          </button>
-        </div>
-
-        {/* Right side icons */}
-        <div className="flex-1 flex justify-around items-center">
-          {[
-            { id: 'polymarket', path: '/polymarket', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-            { id: 'profile', path: '/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.path)}
-              className={`p-1.5 rounded-xl transition ${activeTab === item.id ? 'text-[#FE2C55] scale-110' : 'text-white/60 hover:text-white'}`}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} /></svg>
-            </button>
-          ))}
+      {/* ── Mobile bottom navigation ── single fixed bar */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[9999] px-3 pt-2 pb-[max(env(safe-area-inset-bottom),0.5rem)]">
+        <div className="rounded-2xl border border-white/[0.10] bg-[#121212]/90 backdrop-blur-2xl shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
+          <div className="grid grid-cols-5 items-center px-2 py-1.5">
+            {[
+              { id: 'browse', path: '/', icon: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z' },
+              { id: 'shop', path: '/shop', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+              { id: 'create', path: '/create', icon: 'M12 4v16m8-8H4' },
+              { id: 'polymarket', path: '/polymarket', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+              { id: 'profile', path: '/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.path)}
+                className={`h-11 w-11 mx-auto flex items-center justify-center rounded-xl transition ${
+                  activeTab === item.id
+                    ? 'text-[#FE2C55] bg-white/[0.08] shadow-[0_0_0_1px_rgba(255,43,214,0.35)]'
+                    : 'text-white/60 hover:text-white hover:bg-white/[0.05]'
+                }`}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
+                </svg>
+              </button>
+            ))}
+          </div>
         </div>
       </nav>
       </div>{/* end root h-screen */}

@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../services/api';
 import BettingPopup from './BettingPopup';
+import VideoBetBar from './VideoBetBar';
+import AppIcon from './AppIcon';
 
 interface VideoPlayerProps {
   onToggleSidebar?: () => void;
@@ -37,7 +39,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   const [isLoading, setIsLoading] = useState(true);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [activeBetMarker, setActiveBetMarker] = useState<BetMarker | null>(null);
-  const [shownMarkers, setShownMarkers] = useState<Set<string>>(new Set());
+  const shownMarkersRef = useRef<Set<string>>(new Set());
   const [previewMarkerIndex, setPreviewMarkerIndex] = useState(0);
   const [relatedVideosList, setRelatedVideosList] = useState<Video[]>([]);
   const [deleteBusy, setDeleteBusy] = useState(false);
@@ -67,6 +69,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
         setRelatedVideosList(mapped);
       })
       .catch(() => setRelatedVideosList([]));
+  }, [id]);
+
+  useEffect(() => {
+    shownMarkersRef.current = new Set();
   }, [id]);
 
   useEffect(() => {
@@ -146,7 +152,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
     };
 
     loadVideo();
-  }, [id, navigate, showError]);
+  }, [id, navigate, showError, isPreviewMode]);
 
   // In preview mode, automatically show bet markers sequentially
   useEffect(() => {
@@ -182,7 +188,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
       if (!isPreviewMode && video.betMarkers && video.betMarkers.length > 0 && !videoElement.paused) {
         const marker = video.betMarkers.find(m => {
           const timeDiff = Math.abs(time - m.timestamp);
-          return timeDiff <= 0.5 && !shownMarkers.has(m.id); // Within 0.5 seconds and not shown yet
+          return timeDiff <= 0.5 && !shownMarkersRef.current.has(m.id); // Within 0.5 seconds and not shown yet
         });
         
         if (marker) {
@@ -190,7 +196,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
           videoElement.pause();
           setIsPlaying(false);
           setActiveBetMarker(marker);
-          setShownMarkers(prev => new Set(prev).add(marker.id));
+          shownMarkersRef.current.add(marker.id);
         }
       }
     };
@@ -216,12 +222,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
     videoElement.addEventListener('canplay', handleCanPlay);
     videoElement.addEventListener('error', handleError);
 
-    // Try to play video (may be blocked by browser)
-    const playPromise = videoElement.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
+    // Normal mode: play unless a bet is open. Preview mode: only force-pause while a bet step is active.
+    if (!isPreviewMode) {
+      if (!activeBetMarker) {
+        const playPromise = videoElement.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            setIsPlaying(false);
+          });
+        }
+      } else {
+        videoElement.pause();
         setIsPlaying(false);
-      });
+      }
+    } else if (activeBetMarker) {
+      videoElement.pause();
+      setIsPlaying(false);
     }
 
     return () => {
@@ -234,7 +250,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
       videoElement.removeEventListener('canplay', handleCanPlay);
       videoElement.removeEventListener('error', handleError);
     };
-  }, [video, volume, playbackRate, shownMarkers]);
+  }, [video, volume, playbackRate, isPreviewMode, activeBetMarker]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -284,6 +300,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
       const key = e.key.toLowerCase();
       if (key === ' ' || key === 'k') {
         e.preventDefault();
+        if (activeBetMarker) {
+          showError('Place a bet to continue');
+          return;
+        }
         togglePlayPause();
       } else if (key === 'f') {
         e.preventDefault();
@@ -293,11 +313,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
         toggleMute();
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
+        if (activeBetMarker) {
+          showError('Place a bet to continue');
+          return;
+        }
         if (videoRef.current) {
           videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
         }
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
+        if (activeBetMarker) {
+          showError('Place a bet to continue');
+          return;
+        }
         if (videoRef.current) {
           videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 10);
         }
@@ -322,7 +350,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [volume]);
+  }, [volume, activeBetMarker]);
 
   const resetControlsTimeout = () => {
     if (controlsTimeoutRef.current) {
@@ -341,6 +369,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   };
 
   const togglePlayPause = () => {
+    if (activeBetMarker && !isPlaying) {
+      showError('Place a bet to continue');
+      return;
+    }
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
@@ -353,6 +385,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (activeBetMarker) {
+      showError('Place a bet to continue');
+      return;
+    }
     if (videoRef.current && duration > 0) {
       const seekTime = (parseFloat(e.target.value) / 100) * duration;
       videoRef.current.currentTime = seekTime;
@@ -490,20 +526,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
   const relatedVideos = relatedVideosList.length > 0 ? relatedVideosList : MOCK_VIDEOS.filter(v => v.id !== id).slice(0, 10);
 
-  const handleCloseBettingPopup = () => {
-    if (isPreviewMode && video && video.betMarkers) {
-      // In preview mode, show next bet marker
+  /** After a successful bet: advance preview markers or resume playback. No skip — user must bet to resume. */
+  const handleBetPlacedSuccess = () => {
+    if (isPreviewMode && video?.betMarkers) {
       const nextIndex = previewMarkerIndex + 1;
       if (nextIndex < video.betMarkers.length) {
         setPreviewMarkerIndex(nextIndex);
         setActiveBetMarker(video.betMarkers[nextIndex]);
-        // Seek to the next marker's timestamp
         if (videoRef.current) {
           videoRef.current.currentTime = video.betMarkers[nextIndex].timestamp;
-          videoRef.current.pause(); // Keep paused for next popup
+          videoRef.current.pause();
+          setIsPlaying(false);
         }
       } else {
-        // All markers shown, close and resume
         setActiveBetMarker(null);
         if (videoRef.current) {
           videoRef.current.play().catch(() => {});
@@ -512,20 +547,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
       }
     } else {
       setActiveBetMarker(null);
-      // Resume video playback after bet is placed or skipped
       if (videoRef.current) {
         videoRef.current.play().catch(() => {});
         setIsPlaying(true);
       }
-    }
-  };
-
-  const handleBetPlaced = () => {
-    // Bet was placed, popup will close automatically
-    // Resume video playback
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-      setIsPlaying(true);
     }
   };
 
@@ -548,13 +573,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
 
   return (
     <div className="w-full min-h-screen flex flex-col">
-      {/* Betting Popup */}
+      {/* Betting popup: mobile / small screens — desktop uses sidebar Bet Bar */}
       {activeBetMarker && (
-        <BettingPopup
-          betMarker={activeBetMarker}
-          onClose={handleCloseBettingPopup}
-          onBetPlaced={isPreviewMode ? handleCloseBettingPopup : handleBetPlaced}
-        />
+        <div className="lg:hidden">
+          <BettingPopup betMarker={activeBetMarker} onBetPlaced={handleBetPlacedSuccess} />
+        </div>
       )}
       
       {/* Preview Mode Indicator */}
@@ -590,9 +613,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
               onClick={() => navigate('/')}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-xl font-black italic text-white">V</span>
-              </div>
+              <AppIcon className="w-9 h-9 rounded-lg shadow-md" />
               <span className="text-xl font-black tracking-tight text-gray-900">VPULSE</span>
             </button>
           </div>
@@ -648,7 +669,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
             <video
               ref={videoRef}
               src={video.url}
-              autoPlay
+              autoPlay={!isPreviewMode}
               playsInline
               muted={isMuted}
               className="w-full h-full"
@@ -742,13 +763,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
                       )}
                     </button>
 
-                    {/* Volume Control */}
-                    <div className="relative flex items-center group">
+                    {/* Volume: hover zone on wrapper so moving to the slider does not flicker */}
+                    <div
+                      className="relative flex items-center"
+                      onMouseEnter={() => setShowVolumeSlider(true)}
+                      onMouseLeave={() => setShowVolumeSlider(false)}
+                    >
                       <button
-                        onClick={toggleMute}
-                        onMouseEnter={() => setShowVolumeSlider(true)}
-                        onMouseLeave={() => setShowVolumeSlider(false)}
-                        className="p-2.5 text-white hover:text-purple-400 transition-colors rounded-full hover:bg-white/10"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleMute();
+                        }}
+                        className="p-2.5 text-white hover:text-purple-400 transition-colors rounded-full hover:bg-white/10 shrink-0"
                         aria-label={isMuted ? "Unmute" : "Mute"}
                       >
                         {isMuted || volume === 0 ? (
@@ -767,9 +794,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
                       </button>
                       {showVolumeSlider && (
                         <div
-                          className="absolute bottom-full left-0 mb-3 p-3 bg-black/95 rounded-xl backdrop-blur-md shadow-xl border border-white/10"
-                          onMouseEnter={() => setShowVolumeSlider(true)}
-                          onMouseLeave={() => setShowVolumeSlider(false)}
+                          className="absolute left-full top-1/2 -translate-y-1/2 ml-2 z-30 flex items-center pl-2 pr-3 py-2 bg-black/95 rounded-xl backdrop-blur-md shadow-xl border border-white/10 pointer-events-auto"
+                          onClick={(e) => e.stopPropagation()}
+                          onMouseDown={(e) => e.stopPropagation()}
                         >
                           <input
                             type="range"
@@ -777,7 +804,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
                             max="100"
                             value={volume}
                             onChange={handleVolumeChange}
-                            className="w-24 h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-purple-500"
+                            className="w-[88px] sm:w-24 h-1.5 bg-white/25 rounded-full appearance-none cursor-pointer accent-purple-500"
                             style={{
                               background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${volume}%, rgba(255,255,255,0.25) ${volume}%, rgba(255,255,255,0.25) 100%)`
                             }}
@@ -921,53 +948,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ onToggleSidebar, sidebarOpen 
           )}
         </div>
 
-        {/* Related Videos Sidebar */}
+        {/* Bet bar + up next (desktop) */}
         {!isFullscreen && (
-          <div id="secondary" className="hidden lg:block w-[402px] bg-white border-l border-gray-200 overflow-y-auto scrollbar-hide" style={{ maxHeight: 'calc(100vh - 56px)' }}>
-            <div className="p-4">
-              <h2 className="text-base font-semibold text-gray-900 mb-4 px-2">Up Next</h2>
-              <div className="space-y-3">
-                {relatedVideos.map((relatedVideo) => (
-                  <div
-                    key={relatedVideo.id}
-                    onClick={() => navigate(`/watch/${relatedVideo.id}`)}
-                    className="flex items-start space-x-3 cursor-pointer group hover:bg-gray-50 rounded-xl p-2 -m-2 transition-all"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative flex-shrink-0" style={{ width: '168px', height: '94px' }}>
-                      <img
-                        src={relatedVideo.thumbnail}
-                        alt={relatedVideo.title}
-                        className="w-full h-full object-cover rounded-lg group-hover:opacity-90 transition-opacity"
-                      />
-                      {relatedVideo.type === 'live' && (
-                        <div className="absolute top-2 left-2 flex items-center space-x-1 bg-red-600 text-white text-xs px-2 py-0.5 rounded font-semibold">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                          <span>LIVE</span>
-                        </div>
-                      )}
-                      {relatedVideo.type !== 'live' && (
-                        <div className="absolute bottom-2 right-2 bg-black/90 text-white text-xs px-1.5 py-0.5 rounded font-medium">
-                          10:30
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Video Info */}
-                    <div className="flex-1 min-w-0 pt-0.5">
-                      <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-purple-600 transition-colors mb-1.5 leading-snug">
-                        {relatedVideo.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 mb-1">{relatedVideo.creatorName}</p>
-                      <div className="flex items-center space-x-1 text-xs text-gray-600">
-                        <span>{formatViews(relatedVideo.views)}</span>
-                        <span>•</span>
-                        <span>{timeAgo(Date.now() - Math.random() * 86400000 * 30)}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div
+            id="secondary"
+            className="hidden lg:flex lg:flex-col w-[402px] shrink-0 border-l border-white/[0.08] bg-[#0c0c12]/95 backdrop-blur-xl overflow-y-auto scrollbar-hide"
+            style={{ maxHeight: 'calc(100vh - 56px)' }}
+          >
+            <div className="p-4 flex-1">
+              <VideoBetBar
+                activeBetMarker={activeBetMarker}
+                onBetSuccess={handleBetPlacedSuccess}
+                relatedVideos={relatedVideos}
+                currentVideoId={video.id}
+                onSelectRelated={(vid) => navigate(`/watch/${vid}`)}
+                formatViews={formatViews}
+                formatTime={formatTime}
+              />
             </div>
           </div>
         )}

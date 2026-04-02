@@ -10,6 +10,9 @@ export const COLORS = {
   accent: '#f5f3ff',
 };
 
+/** Favicon / wordmark companion — file in `public/icons/ICON.png` */
+export const APP_ICON_URL = '/icons/ICON.png';
+
 export const MOCK_USER: User = {
   id: 'user-1',
   name: 'Alex Rivera',

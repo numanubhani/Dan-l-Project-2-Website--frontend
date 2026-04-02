@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { api } from '../services/api';
@@ -16,7 +16,7 @@ interface ProfileProps {
 const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, sidebarOpen = true }) => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, openAddCoinsModal } = useAuth();
   const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'inbox' | 'reels' | 'shop' | 'video-live'>('profile');
   const [showEditModal, setShowEditModal] = useState(false);
@@ -29,6 +29,8 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
   const [shopItems, setShopItems] = useState<any[]>([]);
   const [videosLoading, setVideosLoading] = useState(false);
   const [deletingVideoId, setDeletingVideoId] = useState<string | null>(null);
+  const [balanceMenuOpen, setBalanceMenuOpen] = useState(false);
+  const balanceMenuRef = useRef<HTMLDivElement>(null);
 
   const isOwnProfile =
     Boolean(user) &&
@@ -155,6 +157,17 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
     }
   }, [activeTab, profileUserId, user]);
 
+  useEffect(() => {
+    if (!balanceMenuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (balanceMenuRef.current && !balanceMenuRef.current.contains(e.target as Node)) {
+        setBalanceMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [balanceMenuOpen]);
+
   if (!user) {
     return (
       <div className="w-full min-h-screen bg-white flex items-center justify-center">
@@ -193,34 +206,123 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
     location: '',
   };
 
+  const walletBalance = isOwnProfile
+    ? Number(user.balance ?? profileData?.balance ?? 0)
+    : Number(profileData?.balance ?? 0);
+
+  const showBalanceChip = isOwnProfile || profileData?.balance != null;
+
+  const formatMoneyCompact = (n: number) => {
+    if (!Number.isFinite(n)) return '$0';
+    if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (n >= 1000) return `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
+    return `$${Math.round(n)}`;
+  };
+
+  const handleWithdraw = () => {
+    setBalanceMenuOpen(false);
+    const bal = isOwnProfile ? Number(user.balance ?? profileData?.balance ?? 0) : walletBalance;
+    if (!user || bal < 10) {
+      showError('Minimum balance for withdraw is $10');
+      return;
+    }
+    showSuccess('Withdrawal request submitted!');
+  };
+
   return (
     <div className="w-full min-h-screen pb-20">
       {/* Top bar with Back button (and optional menu) */}
       <div className="sticky top-0 z-50 bg-black/60 backdrop-blur-xl border-b border-gray-200">
-        <div className="flex items-center justify-between px-3 py-2 lg:px-6 lg:py-3">
+        <div className="flex items-center justify-between px-3 py-2 lg:px-6 lg:py-3 gap-2 min-h-[48px]">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-gray-100 text-gray-700 hover:text-purple-600 transition"
+            className="flex items-center space-x-2 px-2 py-1 rounded-full hover:bg-gray-100 text-gray-700 hover:text-purple-600 transition shrink-0 min-w-0"
             aria-label="Back to home"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-sm font-semibold hidden sm:inline">Back to Home</span>
+            <span className="text-sm font-semibold hidden sm:inline truncate">Back to Home</span>
           </button>
 
-          {/* Optional hamburger menu when sidebar is hidden */}
-          {!sidebarOpen && onToggleSidebar && (
-            <button
-              onClick={onToggleSidebar}
-              className="p-2 rounded-full hover:bg-gray-100 transition lg:hidden"
-              aria-label="Open sidebar"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {showBalanceChip && (
+              <div className="relative" ref={balanceMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => isOwnProfile && setBalanceMenuOpen((v) => !v)}
+                  className={`flex items-center gap-0.5 px-2 py-1 rounded-full border text-[10px] sm:text-[11px] font-bold tabular-nums leading-none transition max-w-[5.5rem] sm:max-w-none ${
+                    isOwnProfile
+                      ? 'bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 cursor-pointer'
+                      : 'bg-gray-50 border-gray-200 text-gray-600 cursor-default'
+                  }`}
+                  aria-expanded={balanceMenuOpen}
+                  aria-haspopup={isOwnProfile ? 'menu' : undefined}
+                  disabled={!isOwnProfile}
+                  title={isOwnProfile ? 'Wallet' : 'Balance'}
+                >
+                  <span className="truncate">{formatMoneyCompact(walletBalance)}</span>
+                  {isOwnProfile && (
+                    <svg className="w-3 h-3 text-purple-500 shrink-0 opacity-80" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </button>
+                {isOwnProfile && balanceMenuOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-1.5 w-52 rounded-xl border border-gray-200 bg-white shadow-xl z-[100] py-1 overflow-hidden text-left"
+                    role="menu"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100 bg-gray-50/80">
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Your balance</p>
+                      <p className="text-base font-black text-purple-600 tabular-nums">
+                        ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setBalanceMenuOpen(false);
+                        openAddCoinsModal();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-semibold text-gray-800 hover:bg-purple-50 transition text-left"
+                    >
+                      <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Add coins (test)
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleWithdraw}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-semibold text-gray-800 hover:bg-purple-50 transition text-left"
+                    >
+                      <svg className="w-4 h-4 text-purple-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Withdraw
+                    </button>
+                    <p className="px-3 pb-2 text-[10px] text-gray-400 leading-snug">$10 minimum to withdraw. Funds may take a few business days.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Optional hamburger menu when sidebar is hidden */}
+            {!sidebarOpen && onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className="p-2 rounded-full hover:bg-gray-100 transition lg:hidden"
+                aria-label="Open sidebar"
+              >
+                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -314,31 +416,6 @@ const Profile: React.FC<ProfileProps> = ({ user, onUserUpdate, onToggleSidebar, 
                 <span>{displayData.location}</span>
               </div>
             )}
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 w-full mb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] text-gray-500 font-bold mb-0.5">Balance</p>
-                  <p className="text-lg font-black text-purple-600">
-                    ${Number(profileData?.balance ?? user.balance ?? 0).toLocaleString()}
-                  </p>
-                </div>
-                {isOwnProfile && (
-                  <button 
-                    onClick={() => {
-                      const bal = Number(profileData?.balance ?? user.balance ?? 0);
-                      if (!user || bal < 10) {
-                        showError('Minimum balance for withdraw is $10');
-                      } else {
-                        showSuccess('Withdrawal request submitted!');
-                      }
-                    }}
-                    className="px-3 py-1.5 bg-purple-500 text-white rounded-lg font-bold text-xs hover:bg-purple-600 transition"
-                  >
-                    Withdraw
-                  </button>
-                )}
-              </div>
-            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 w-full mb-4">

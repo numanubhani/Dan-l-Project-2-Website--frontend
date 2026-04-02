@@ -10,6 +10,15 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   setIsAuthenticated: (value: boolean) => void;
   requireAuth: (action: () => void, actionName?: string) => void;
+  /** Dummy wallet top-up for testing (local state only). */
+  applyDummyWalletTopUp: (amount: number) => void;
+  /** Deduct stake locally when API rejects for insufficient funds but client test balance covers it. */
+  applyDummyWalletDebit: (amount: number) => void;
+  /** Subtract from local balance when API rejects for insufficient funds but test wallet has enough. */
+  applyDummyWalletDebit: (amount: number) => void;
+  addCoinsModalOpen: boolean;
+  openAddCoinsModal: () => void;
+  closeAddCoinsModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +36,8 @@ interface AuthProviderProps {
   initialUser: User | null;
   initialIsAuthenticated: boolean;
   onLoginSuccess: () => void;
+  /** Keep App-level `user` in sync when balance is patched locally (e.g. dummy add coins). */
+  syncUserToApp?: (user: User) => void;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({
@@ -34,11 +45,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   initialUser,
   initialIsAuthenticated,
   onLoginSuccess,
+  syncUserToApp,
 }) => {
   const [user, setUser] = useState<User | null>(initialUser);
   const [isAuthenticated, setIsAuthenticated] = useState(initialIsAuthenticated);
   const [showModal, setShowModal] = useState(false);
   const [modalAction, setModalAction] = useState<string>('continue');
+  const [addCoinsModalOpen, setAddCoinsModalOpen] = useState(false);
 
   // Sync with parent state changes
   React.useEffect(() => {
@@ -63,6 +76,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  const openAddCoinsModal = () => {
+    if (isAuthenticated && user) {
+      setAddCoinsModalOpen(true);
+    } else {
+      showLoginModal('add coins');
+    }
+  };
+
+  const closeAddCoinsModal = () => setAddCoinsModalOpen(false);
+
+  const applyDummyWalletTopUp = (amount: number) => {
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next: User = {
+        ...prev,
+        balance: Number(prev.balance) + amount,
+      };
+      syncUserToApp?.(next);
+      return next;
+    });
+  };
+
+  const applyDummyWalletDebit = (amount: number) => {
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next: User = {
+        ...prev,
+        balance: Number(prev.balance) - amount,
+      };
+      syncUserToApp?.(next);
+      return next;
+    });
+  };
+
   const handleLoginSuccess = () => {
     onLoginSuccess();
     hideLoginModal();
@@ -78,6 +127,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setUser,
         setIsAuthenticated,
         requireAuth,
+        applyDummyWalletTopUp,
+        applyDummyWalletDebit,
+        addCoinsModalOpen,
+        openAddCoinsModal,
+        closeAddCoinsModal,
       }}
     >
       {children}

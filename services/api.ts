@@ -95,6 +95,22 @@ const parseErrorMessage = (error: any, fallback: string): string => {
   return error.detail || error.message || error.error || fallback;
 };
 
+/** Client-only balance used when the server still has 0 but the user added test coins in the UI. */
+export type TestWalletBetAssist = {
+  clientBalance: number;
+  onTestWalletDebit: (amount: number) => void;
+};
+
+const looksLikeInsufficientFundsMessage = (message: string): boolean => {
+  const m = (message || '').toLowerCase();
+  return (
+    m.includes('insufficient') ||
+    m.includes('not enough') ||
+    m.includes('low balance') ||
+    m.includes('underfunded')
+  );
+};
+
 const loginWithCredentials = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await fetch(`${API_BASE_URL}/auth/login/`, {
     method: 'POST',
@@ -357,29 +373,77 @@ export const api = {
   },
 
   // Place bet on a video bet marker (timestamp-based)
-  async placeMarkerBet(markerId: number | string, optionId: number | string, amount: number): Promise<{ balance: number; bet_id: number }> {
+  async placeMarkerBet(
+    markerId: number | string,
+    optionId: number | string,
+    amount: number,
+    testWallet?: TestWalletBetAssist
+  ): Promise<{ balance: number; bet_id: number }> {
     const response = await fetch(`${API_BASE_URL}/bets/place-marker/`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ marker_id: markerId, option_id: optionId, amount }),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(parseErrorMessage(error, 'Failed to place bet'));
+      const raw = await response.text();
+      let message = 'Failed to place bet';
+      if (raw) {
+        try {
+          message = parseErrorMessage(JSON.parse(raw), message);
+        } catch {
+          message = raw;
+        }
+      }
+      if (
+        testWallet &&
+        Number(testWallet.clientBalance) >= amount &&
+        looksLikeInsufficientFundsMessage(message)
+      ) {
+        testWallet.onTestWalletDebit(amount);
+        return {
+          balance: Number(testWallet.clientBalance) - amount,
+          bet_id: 0,
+        };
+      }
+      throw new Error(message);
     }
     return await response.json();
   },
 
   // Place bet on a live bet event
-  async placeEventBet(eventId: number | string, optionId: number | string, amount: number): Promise<{ balance: number; bet_id: number }> {
+  async placeEventBet(
+    eventId: number | string,
+    optionId: number | string,
+    amount: number,
+    testWallet?: TestWalletBetAssist
+  ): Promise<{ balance: number; bet_id: number }> {
     const response = await fetch(`${API_BASE_URL}/bets/place-event/`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ event_id: eventId, option_id: optionId, amount }),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(parseErrorMessage(error, 'Failed to place bet'));
+      const raw = await response.text();
+      let message = 'Failed to place bet';
+      if (raw) {
+        try {
+          message = parseErrorMessage(JSON.parse(raw), message);
+        } catch {
+          message = raw;
+        }
+      }
+      if (
+        testWallet &&
+        Number(testWallet.clientBalance) >= amount &&
+        looksLikeInsufficientFundsMessage(message)
+      ) {
+        testWallet.onTestWalletDebit(amount);
+        return {
+          balance: Number(testWallet.clientBalance) - amount,
+          bet_id: 0,
+        };
+      }
+      throw new Error(message);
     }
     return await response.json();
   },

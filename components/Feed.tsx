@@ -6,6 +6,7 @@ import { Video, User, UserRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../services/api';
+import AppIcon from './AppIcon';
 
 const GUEST_USER: User = {
   id: '0',
@@ -259,7 +260,7 @@ const DesktopActionRail: React.FC<{
 
 // ─── Feed ───────────────────────────────────────────────────────────────────
 const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }) => {
-  const { user: authUser, isAuthenticated, showLoginModal } = useAuth();
+  const { user: authUser, isAuthenticated, showLoginModal, applyDummyWalletDebit } = useAuth();
   const displayUser = user ?? authUser ?? GUEST_USER;
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
@@ -385,9 +386,7 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
             </button>
           )}
           <button onClick={() => navigate('/')} className="flex items-center gap-2 hover:opacity-80 transition shrink-0">
-            <div className="w-8 h-8 bg-gradient-to-br from-fuchsia-500 to-violet-600 rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-base font-black italic text-white">V</span>
-            </div>
+            <AppIcon className="w-8 h-8 rounded-lg shadow-md" />
             <span className="text-base font-black tracking-tight text-white hidden xl:inline">VPULSE</span>
           </button>
         </div>
@@ -597,7 +596,11 @@ const Feed: React.FC<FeedProps> = ({ user, onToggleSidebar, sidebarOpen = true }
                 onCloseBetting={() => setBettingVideoId(null)}
                 onPlaceEventBet={async (eventId, optionId, amt) => {
                   try {
-                    await api.placeEventBet(eventId, optionId, amt);
+                    const clientBal = authUser ? Number(authUser.balance) : 0;
+                    await api.placeEventBet(eventId, optionId, amt, {
+                      clientBalance: clientBal,
+                      onTestWalletDebit: applyDummyWalletDebit,
+                    });
                     showSuccess(`Bet placed: $${amt}`);
                   } catch (err: any) {
                     showError(err.message || 'Failed to place bet');

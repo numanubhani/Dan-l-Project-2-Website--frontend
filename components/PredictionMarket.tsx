@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import AppIcon from './AppIcon';
 
 // Types
 interface Market {
@@ -319,10 +320,8 @@ const Navbar: React.FC<NavbarProps> = ({ searchQuery, onSearchChange }) => {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-400 rounded-xl flex items-center justify-center shadow-lg shadow-purple-400/30">
-            <span className="text-lg sm:text-2xl font-black italic text-white">V</span>
-          </div>
-          <span className="text-lg sm:text-2xl font-black tracking-tighter text-gray-900">VPULSE</span>
+            <AppIcon className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl shadow-lg shadow-purple-400/30" />
+            <span className="text-lg sm:text-2xl font-black tracking-tighter text-gray-900">VPULSE</span>
           </div>
 
           {/* Search */}
@@ -446,9 +445,7 @@ const PredictionMarket: React.FC<PredictionMarketProps> = ({ onBack, user }) => 
             
             {/* Logo/Title on Mobile */}
             <div className="lg:hidden flex items-center space-x-2 flex-1">
-              <div className="w-7 h-7 bg-purple-400 rounded-lg flex items-center justify-center shadow-lg shadow-purple-400/30">
-                <span className="text-base font-black italic text-white">V</span>
-              </div>
+              <AppIcon className="w-7 h-7 rounded-lg shadow-lg shadow-purple-400/30" />
               <span className="text-base font-black tracking-tighter text-gray-900">VPULSE</span>
             </div>
             

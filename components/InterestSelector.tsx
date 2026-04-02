@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import AppIcon from './AppIcon';
 
 /* ── Persistent helpers ─────────────────────────────────────────────── */
 
@@ -80,9 +81,7 @@ const InterestSelector: React.FC<InterestSelectorProps> = ({ onComplete }) => {
       {/* ── Header ── */}
       <div className="shrink-0 px-5 pt-10 pb-5 text-center border-b border-white/[0.06]">
         {/* Logo */}
-        <div className="w-11 h-11 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#FE2C55]/30">
-          <span className="text-xl font-black italic text-white leading-none">V</span>
-        </div>
+        <AppIcon className="w-11 h-11 rounded-2xl mx-auto mb-5 shadow-lg shadow-[#FE2C55]/30" alt="VPULSE" />
 
         <h1 className="text-[22px] font-black text-white tracking-tight leading-snug">
           What would you like to watch<br className="hidden sm:block" /> on VPulse?

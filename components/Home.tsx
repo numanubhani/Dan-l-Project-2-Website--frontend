@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Video } from '../types';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import AppIcon from './AppIcon';
 
 interface HomeProps {
   user?: any;
@@ -165,9 +166,7 @@ const Home: React.FC<HomeProps> = ({ user, onToggleSidebar, sidebarOpen = true }
           className="flex items-center gap-2 shrink-0 min-w-0 rounded-lg py-1 pr-1 hover:opacity-90 transition"
           aria-label="VPULSE Home"
         >
-          <div className="w-8 h-8 shrink-0 bg-gradient-to-br from-[#FE2C55] to-[#25F4EE] rounded-lg flex items-center justify-center shadow-md">
-            <span className="text-sm font-black italic text-white leading-none">V</span>
-          </div>
+          <AppIcon className="w-8 h-8 rounded-lg shadow-md" />
           <span className="text-[15px] font-black tracking-tight text-white truncate">VPULSE</span>
         </button>
 

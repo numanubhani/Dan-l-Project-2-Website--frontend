@@ -77,14 +77,16 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   return (
     /* Full-page background matching TikTok dark theme */
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px] bg-[#161823] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="w-full max-w-[420px] relative overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-br from-[#151528]/95 via-[#11111f]/95 to-[#0b0b16]/95 shadow-[0_0_0_1px_rgba(157,77,255,0.16),0_18px_46px_rgba(0,0,0,0.72),0_0_44px_rgba(39,233,255,0.12)] flex flex-col">
+        <div className="pointer-events-none absolute -top-24 -left-20 w-56 h-56 rounded-full bg-fuchsia-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-16 w-56 h-56 rounded-full bg-cyan-400/15 blur-3xl" />
 
         {/* Back button (form view) */}
         <div className="relative">
           {view === 'form' && (
             <button
               onClick={() => setView('options')}
-              className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+              className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white transition shadow-[0_0_18px_rgba(157,77,255,0.22)]"
               aria-label="Back"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,7 +97,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* Content */}
-        <div className="px-8 pt-10 pb-6">
+        <div className="relative z-[1] px-8 pt-10 pb-6">
           {/* Title */}
           <h1 className="text-2xl font-black text-white text-center mb-8 tracking-tight">
             {mode === 'login' ? 'Log in to VPulse' : 'Sign up for VPulse'}
@@ -206,7 +208,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 rounded-full bg-[#FE2C55] hover:bg-[#e6254b] text-white font-bold text-base tracking-wide transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-2 py-3 rounded-full bg-gradient-to-r from-fuchsia-500 via-pink-500 to-violet-500 border border-white/20 text-white font-bold text-base tracking-wide transition hover:brightness-110 shadow-[0_8px_28px_rgba(255,43,214,0.35)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}
               </button>
@@ -215,7 +217,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         </div>
 
         {/* ── Terms + toggle footer ── */}
-        <div className="border-t border-white/10 bg-white/5 px-8 py-5 text-center space-y-3">
+        <div className="relative z-[1] border-t border-violet-300/20 bg-white/[0.04] px-8 py-5 text-center space-y-3">
           <p className="text-[11px] text-white/40 leading-relaxed">
             By continuing, you agree to our{' '}
             <span className="text-white/70 underline cursor-pointer">Terms of Service</span> and confirm
@@ -256,7 +258,7 @@ const OptionButton: React.FC<{
   <button
     type="button"
     onClick={onClick}
-    className="w-full flex items-center gap-4 px-5 py-3.5 bg-[#2a2a3a] hover:bg-[#33334a] border border-white/10 rounded-xl text-white font-semibold text-sm transition"
+    className="w-full flex items-center gap-4 px-5 py-3.5 bg-gradient-to-r from-[#1b1b2b] to-[#131324] hover:from-[#23233a] hover:to-[#17172b] border border-violet-300/25 rounded-xl text-white font-semibold text-sm transition shadow-[0_0_0_1px_rgba(39,233,255,0.1)]"
   >
     <span className="w-6 h-6 flex items-center justify-center shrink-0 text-white/80">{icon}</span>
     <span className="flex-1 text-center">{label}</span>
@@ -272,14 +274,14 @@ const FormInput: React.FC<{
   required?: boolean;
 }> = ({ label, type, value, onChange, placeholder, required }) => (
   <div>
-    <label className="block text-xs font-semibold text-white/50 mb-1 ml-1">{label}</label>
+    <label className="block text-xs font-semibold text-white/60 mb-1 ml-1 tracking-wide">{label}</label>
     <input
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="w-full px-4 py-3 bg-[#2a2a3a] border border-white/10 rounded-xl text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#FE2C55] focus:ring-1 focus:ring-[#FE2C55] transition"
+      className="w-full px-4 py-3 bg-gradient-to-r from-[#1b1b2b] to-[#131324] border border-violet-300/25 rounded-xl text-white text-sm placeholder-white/35 focus:outline-none focus:border-cyan-300/70 focus:ring-1 focus:ring-cyan-300/50 transition shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
     />
   </div>
 );
